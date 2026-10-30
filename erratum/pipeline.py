@@ -3,10 +3,10 @@ from __future__ import annotations
 
 import os
 import re
-import xml.etree.ElementTree as ET
 from concurrent.futures import ThreadPoolExecutor
 
 import httpx
+from defusedxml import ElementTree as ET
 
 from . import checkers as C
 from . import llm

@@ -1,4 +1,6 @@
 """Offline tests of how Nemotron's extraction is merged with the regex checks (no API calls)."""
+import pytest
+
 from erratum import llm, pipeline as P
 
 TEXT = open("demos/synthetic.txt").read()
@@ -105,3 +107,13 @@ def test_stat_must_sit_next_to_its_own_p():
     q = "The indirect effect was not significant (b = −0.01, z = −0.12, p = .90), whereas the total effect was (b = 0.40, p < 0.001)."
     assert not P._grounded("stats", {"quote": q, "test": "z", "stat": "−0.12", "p_op": "<", "p": "0.001"})
     assert P._grounded("stats", {"quote": q, "test": "z", "stat": "−0.12", "p_op": "=", "p": ".90"})
+
+
+def test_entity_bomb_in_europe_pmc_xml_is_refused(monkeypatch):
+    import httpx
+    from types import SimpleNamespace
+    bomb = (b'<?xml version="1.0"?><!DOCTYPE lolz [<!ENTITY lol "lol"><!ENTITY lol2 "&lol;&lol;&lol;&lol;">]>'
+            b"<article><body><p>&lol2;</p></body></article>")
+    monkeypatch.setattr(httpx, "get", lambda *a, **k: SimpleNamespace(status_code=200, text=bomb.decode(), content=bomb))
+    with pytest.raises(ValueError):
+        P.resolve("PMC1234567")

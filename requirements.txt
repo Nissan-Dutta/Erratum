@@ -4,3 +4,4 @@ httpx==0.28.1
 pint==0.24.4
 scipy==1.15.3
 pydantic==2.11.4
+defusedxml==0.7.1
