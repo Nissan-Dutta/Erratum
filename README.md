@@ -29,11 +29,18 @@ Erratum splits the job:
 
 ## Evaluation (planted errors, real papers)
 
-`python -m bench.bench --n 20` takes 20 recent open-access papers from Europe PMC, picks a statistic the checker already finds consistent, flips its reported p across α, and re-audits.
+`python -m bench.bench --n 20 --llm --baseline` takes 20 recent open-access papers from Europe PMC, picks a statistic the checker already finds consistent, flips its reported p-value across α, and re-audits. The same planted paper (a 60k-character window around the planted statistic) goes to **Nemotron 3 Ultra alone**, with reasoning on, asked to "find the statistical reporting errors and quote each one".
 
-- **Recall on planted p-value errors: 20/20 (95% Wilson CI 0.84–1.00).** This measures checking, not extraction: the planted statistic is one the parser already recognized. Extraction coverage is the open problem.
-- **Flags on the unmodified papers: 6 across 337 checked numbers.** I hand-checked an earlier run with 15 flags. Seven came from one paper that reports Bonferroni-adjusted p-values (×10, capped at 1). That led to the code-tested adjustment rule above, which removed them without losing any recall. Most of the remaining flags are small rounding-level differences, likely from Welch or Greenhouse–Geisser corrections that the text doesn't state. Each one has to be confirmed by a person.
-- An AI-only baseline (Nemotron Ultra asked to "find the statistical errors") runs with `--baseline`.
+| | Planted errors found | 95% Wilson CI | Model tokens per paper |
+|---|---|---|---|
+| **Erratum** (regex + code; Nemotron extraction on top) | **20/20** | 0.84–1.00 | 0 for the code path; ~21k with Nemotron (mostly Lightning) |
+| **Nemotron 3 Ultra alone** | **20/20** | 0.84–1.00 | ~18k, all on the largest model |
+
+What this shows, honestly:
+- **Recall on planted p-value flips is a tie.** A frontier reasoning model can spot a p-value flipped across α when asked. Erratum's code path matches it with **no model tokens at all**, and every Erratum verdict is a recomputation you can check (the recomputed p is printed), not a claim.
+- **The baseline's other claims need checking.** Apart from the planted error, Ultra quoted 7 more statistics as errors on 5 of 19 papers, and code recomputes 3 of them as consistent. On one more paper, one run quoted ~70 statistics and a re-run quoted 2; we exclude that paper from the false-alarm count because the answer isn't stable. The re-run also shows the failure mode: Ultra said a Holm-adjusted p = 0.210 "should be 0.118", but Holm's step-down rule requires the adjusted p-values to be non-decreasing, so 0.210 is correct. Confident, expert-sounding, wrong.
+- **Erratum's own flags on the unmodified papers: 9 across 341 checked numbers.** Most are rounding-level differences (e.g. reported p = .453 vs recomputed .449), likely Welch or Greenhouse–Geisser corrections the text doesn't state. Two are "p > .05" where the recomputed p is .027 and .046. Each flag is a prompt for a human check, not a verdict. An earlier hand-check of 15 flags found 7 came from one paper reporting Bonferroni-adjusted p-values; that led to the code-tested adjustment rule, which removed them without losing recall.
+- This measures checking, not extraction: the planted statistic is one the parser already recognized. Extraction coverage is the open problem, and Nemotron's role there is guarded by grounding (see above). On clean real papers the live pipeline returns 0 flags after grounding.
 
 Full rows: `bench/results.json`.
 
