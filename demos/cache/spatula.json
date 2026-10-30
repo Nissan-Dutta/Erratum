@@ -23,15 +23,15 @@
    "source": "regex",
    "triage": {
     "explanations": [
-     "Typographical error: extra zero omitted or misplaced decimal point",
-     "Unit slip: using 700 ng/kg bw/day instead of 7000 ng/kg bw/day",
-     "Rounding or scaling convention: reporting value in µg/day after conversion (420,000 ng = 420 µg) and mistakenly wrote 42,000 ng"
+     "Typo in the exposure value: the author may have intended 700 ng/kg bw/day instead of 7000 ng/kg bw/day, giving 60 kg × 700 = 42 000 ng/day.",
+     "Misplaced decimal point: an extra zero was omitted when transcribing the product (e.g., 420 000 written as 42 000).",
+     "Unit confusion: the body weight might have been entered in grams (60 g) rather than kilograms, leading to 0.06 kg × 7000 = 420 ng/day, which after a further conversion step could appear as 42 000 ng/day."
     ],
-    "check": "Re‑calculate 60 kg × 7000 ng/kg bw/day, verify the units and any conversion factors applied, and confirm the intended reported value (e.g., ng/day vs µg/day)."
+    "check": "Verify the original body weight and exposure concentration used in the calculation, redo the multiplication ensuring correct units (kg and ng/kg), and confirm whether any conversion factor (e.g., to µg) was applied before reporting the final value."
    },
    "review": {
     "impact": "Yes, if the reference intake is actually 420,000 ng/day, the estimated utensil-derived intake of 34,700 ng/day would represent only ~8% of the reference dose rather than 83%, substantially weakening the claim that exposure 'approaches the reference dose.'",
-    "author_query": "We noted that the reference intake calculation (60 kg × 7000 ng/kg bw/day) yields 420,000 ng/day, but the manuscript reports 42,000 ng/day. Could you please confirm which value is correct and whether the 83% comparison should be updated accordingly?"
+    "author_query": "We noticed the reference intake calculation (60 kg × 7000 ng/kg bw/day) yields 420,000 ng/day, but the paper states 42,000 ng/day. Could you confirm which value is correct and whether the 83% comparison should be updated accordingly?"
    }
   }
  ],
@@ -48,15 +48,15 @@
    "source": "regex",
    "triage": {
     "explanations": [
-     "Typographical error: extra zero omitted or misplaced decimal point",
-     "Unit slip: using 700 ng/kg bw/day instead of 7000 ng/kg bw/day",
-     "Rounding or scaling convention: reporting value in µg/day after conversion (420,000 ng = 420 µg) and mistakenly wrote 42,000 ng"
+     "Typo in the exposure value: the author may have intended 700 ng/kg bw/day instead of 7000 ng/kg bw/day, giving 60 kg × 700 = 42 000 ng/day.",
+     "Misplaced decimal point: an extra zero was omitted when transcribing the product (e.g., 420 000 written as 42 000).",
+     "Unit confusion: the body weight might have been entered in grams (60 g) rather than kilograms, leading to 0.06 kg × 7000 = 420 ng/day, which after a further conversion step could appear as 42 000 ng/day."
     ],
-    "check": "Re‑calculate 60 kg × 7000 ng/kg bw/day, verify the units and any conversion factors applied, and confirm the intended reported value (e.g., ng/day vs µg/day)."
+    "check": "Verify the original body weight and exposure concentration used in the calculation, redo the multiplication ensuring correct units (kg and ng/kg), and confirm whether any conversion factor (e.g., to µg) was applied before reporting the final value."
    },
    "review": {
     "impact": "Yes, if the reference intake is actually 420,000 ng/day, the estimated utensil-derived intake of 34,700 ng/day would represent only ~8% of the reference dose rather than 83%, substantially weakening the claim that exposure 'approaches the reference dose.'",
-    "author_query": "We noted that the reference intake calculation (60 kg × 7000 ng/kg bw/day) yields 420,000 ng/day, but the manuscript reports 42,000 ng/day. Could you please confirm which value is correct and whether the 83% comparison should be updated accordingly?"
+    "author_query": "We noticed the reference intake calculation (60 kg × 7000 ng/kg bw/day) yields 420,000 ng/day, but the paper states 42,000 ng/day. Could you confirm which value is correct and whether the 83% comparison should be updated accordingly?"
    }
   }
  ],
@@ -70,8 +70,10 @@
   "super": "nvidia/nemotron-3-super-120b-a12b",
   "ultra": "nvidia/Nemotron-3-Ultra-550b-a55b"
  },
- "tokens": 2543,
- "notes": [],
- "seconds": 11.5,
+ "tokens": 2746,
+ "notes": [
+  "2 Nemotron grim item(s) dropped: numbers not visible in the quoted text."
+ ],
+ "seconds": 10.5,
  "chars": 766
 }

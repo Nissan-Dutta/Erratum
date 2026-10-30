@@ -1,0 +1,101 @@
+{
+ "meta": {
+  "title": "Positive Peer Groups Support Preschoolers’ Word Learning",
+  "pmcid": "PMC13646472",
+  "doi": "10.1111/desc.70294",
+  "note": "Real open-access paper (Europe PMC). Shown because its checkable numbers are all consistent; the registry check reports only what code could confirm."
+ },
+ "counts": {
+  "ok": 5,
+  "flag": 0,
+  "not_checkable": 0,
+  "checked": 5,
+  "decision": 0
+ },
+ "flags": [],
+ "findings": [
+  {
+   "kind": "statcheck",
+   "test": "F",
+   "quote": "F(1,42) = 124.29, p<.001",
+   "stat": "124.29",
+   "p": ".001",
+   "computed_p": 0.0,
+   "reported": "p < .001",
+   "status": "ok",
+   "detail": "Recomputed p = 0.0000; consistent with the reported value.",
+   "source": "regex"
+  },
+  {
+   "kind": "statcheck",
+   "test": "F",
+   "quote": "F(1,42) = 7.69, p = 0.0082",
+   "stat": "7.69",
+   "p": "0.0082",
+   "computed_p": 0.00825,
+   "reported": "p = 0.0082",
+   "status": "ok",
+   "detail": "Recomputed p = 0.0082; consistent with the reported value.",
+   "source": "regex"
+  },
+  {
+   "kind": "statcheck",
+   "test": "F",
+   "quote": "F(1,42) = 0.39, p = 0.54",
+   "stat": "0.39",
+   "p": "0.54",
+   "computed_p": 0.53568,
+   "reported": "p = 0.54",
+   "status": "ok",
+   "detail": "Recomputed p = 0.5357; consistent with the reported value.",
+   "source": "regex"
+  },
+  {
+   "kind": "statcheck",
+   "test": "F",
+   "quote": "F(1,42) = 0.93, p = 0.34",
+   "stat": "0.93",
+   "p": "0.34",
+   "computed_p": 0.34038,
+   "reported": "p = 0.34",
+   "status": "ok",
+   "detail": "Recomputed p = 0.3404; consistent with the reported value.",
+   "source": "regex"
+  },
+  {
+   "kind": "statcheck",
+   "test": "F",
+   "quote": "F(1,42) = 0.22, p = 0.64",
+   "stat": "0.22",
+   "p": "0.64",
+   "computed_p": 0.64147,
+   "reported": "p = 0.64",
+   "status": "ok",
+   "detail": "Recomputed p = 0.6415; consistent with the reported value.",
+   "source": "regex"
+  }
+ ],
+ "prereg": {
+  "links": [
+   "https://osf.io/zswe3"
+  ],
+  "status": "unclear",
+  "detail": "Tavily read the registry, but no planned sample size could be confirmed in its text.",
+  "outcome_note": "The registered primary outcome is not explicitly stated in the registry text; the paper's primary outcome matches the provided description.",
+  "registered_outcome": "children's accuracy on the word learning test trials"
+ },
+ "models": {
+  "lightning": "nvidia/Nemotron-3_5-Lightning",
+  "super": "nvidia/nemotron-3-super-120b-a12b",
+  "ultra": "nvidia/Nemotron-3-Ultra-550b-a55b"
+ },
+ "tokens": 10782,
+ "notes": [
+  "1 Nemotron stats item(s) dropped: numbers not visible in the quoted text.",
+  "5 Nemotron grim item(s) dropped: numbers not visible in the quoted text.",
+  "2 Nemotron percents item(s) dropped: numbers not visible in the quoted text.",
+  "1 Nemotron arithmetic item(s) dropped: numbers not visible in the quoted text."
+ ],
+ "seconds": 8.5,
+ "chars": 34811
+}

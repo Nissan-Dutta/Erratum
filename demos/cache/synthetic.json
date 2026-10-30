@@ -25,15 +25,15 @@
    "source": "regex",
    "triage": {
     "explanations": [
-     "Possible typographical error when copying the p‑value from statistical output.",
-     "The authors may have reported a one‑tailed p‑value (≈ .039) instead of the two‑tailed value (.078).",
-     "Mislabeling of the test statistic (e.g., using a different F value) leading to a different p."
+     "Possible typo in the reported p‑value.",
+     "The authors may have used a one‑tailed test while the recomputed p is two‑tailed.",
+     "A different error term or corrected degrees of freedom (e.g., Greenhouse‑Geisser) could have been applied, altering the p‑value."
     ],
-    "check": "Verify the original test output (including whether the test was one‑ or two‑tailed) and confirm the reported F value and p‑value match the same analysis."
+    "check": "Verify the exact F value, degrees of freedom, and whether any corrections (e.g., sphericity, covariates) were applied; recompute the p‑value from those numbers and see if a different test or error term matches the reported .03."
    },
    "review": {
-    "impact": "The recomputed p-value of 0.0782 for the condition × gender interaction (F(1,60)=3.21) exceeds α=0.05, whereas the reported p=.03 falls below it, so the statistical significance of this interaction would reverse, potentially altering any conclusions that depend on this interaction being significant.",
-    "author_query": "We noticed that the p-value for the condition × gender interaction (F(1,60)=3.21) recomputes to approximately 0.078 rather than the reported 0.03. Could you please confirm which value is correct and whether the interaction should be considered statistically significant at α=0.05?"
+    "impact": "The corrected p-value of 0.0782 exceeds the 0.05 significance threshold, which would render the reported condition-by-gender interaction non-significant and potentially alter the study's conclusions about gender moderation effects.",
+    "author_query": "We noticed that the p-value for the interaction effect F(1, 60) = 3.21 recomputes to approximately 0.078 rather than the reported 0.03. Could you please verify the exact p-value for this interaction term? This would help clarify whether the condition-by-gender interaction remains statistically significant at the conventional alpha level."
    }
   },
   {
@@ -48,15 +48,15 @@
    "source": "regex",
    "triage": {
     "explanations": [
-     "Decimal placement error – the intended multiplier may have been $0.35 rather than $3.50.",
-     "The calculation could have been performed in cents (64 × 35 ¢ = 2240 ¢ = $22.40) but the unit was mis‑specified.",
-     "A simple transcription slip where an extra zero was added or omitted."
+     "A decimal place was misplaced (e.g., 22.40 instead of 224).",
+     "The units may have been confused (e.g., reporting in hundreds of dollars or in cents).",
+     "The multiplication could have been performed with a different multiplier (e.g., 6.4 × 3.50)."
     ],
-    "check": "Check the source data for the price per item and the units used in the calculation; ensure the multiplication yields the reported amount."
+    "check": "Check the raw numbers used in the calculation (price per item and quantity) and confirm the intended unit of measurement; redo the multiplication to see whether 22.40 reflects a different scaling."
    },
    "review": {
-    "impact": "The cost calculation reports 64 × $3.50 = $22.40, but the correct product is $224.00, a tenfold discrepancy that would affect any cost-effectiveness or budgetary conclusions drawn from this analysis.",
-    "author_query": "In the cost analysis, the total booklet cost is stated as 64 × $3.50 = $22.40, but this multiplication yields $224.00. Could you please verify the intended total cost and whether the decimal placement is correct?"
+    "impact": "The cost calculation appears to be off by a factor of 10 (64 × $3.50 = $224, not $22.40), which could substantially affect any cost-effectiveness or resource-allocation conclusions drawn from the analysis.",
+    "author_query": "In the cost analysis, the total booklet cost is reported as 64 × $3.50 = $22.40, but this multiplication yields $224. Could you please confirm the intended unit cost and total expenditure? This will ensure the cost-effectiveness interpretation is based on accurate figures."
    }
   },
   {
@@ -71,11 +71,11 @@
    "source": "regex",
    "triage": {
     "explanations": [
-     "The percentage may have been calculated using a different denominator (e.g., only participants who answered a specific question).",
-     "Rounding or transcription error when converting the proportion to a percentage.",
-     "The numerator or denominator could have been mis‑copied from the raw counts."
+     "The denominator used for the percentage may differ from the total N=64 (e.g., only respondents to a specific question).",
+     "A counting error in the numerator (e.g., 14 instead of 12) could produce ~21.9%.",
+     "Rounding of a proportion based on a different sample size (e.g., 12/55 ≈ 21.8%)."
     ],
-    "check": "Identify the exact subgroup or variable for which the 21.9% was intended and confirm the denominator used matches that subgroup."
+    "check": "Confirm the exact count of participants with the characteristic and the denominator over which the percentage was calculated; ensure that the denominator matches the sample described in the surrounding text."
    }
   },
   {
@@ -89,11 +89,11 @@
    "source": "nemotron",
    "triage": {
     "explanations": [
-     "The reported means might be model‑estimated (e.g., least‑squares means) rather than raw sample means.",
-     "The scale may allow non‑integer values (e.g., a continuous transformation or averaging of multi‑item scales).",
-     "Data could have been weighted or adjusted (e.g., for covariates) before computing the means."
+     "The reported mean is a model‑estimated marginal mean (adjusted for covariates) rather than a raw sample mean.",
+     "The variable is a composite score derived from averaging multiple items, allowing non‑integer means even with integer‑scale items.",
+     "Missing data or weighting could produce a non‑integer mean that does not correspond to a simple integer sum."
     ],
-    "check": "Determine whether the means are raw descriptive statistics or adjusted estimates from a model, and verify the measurement scale allows the reported values."
+    "check": "Determine whether the means are raw observed averages or adjusted estimates from a statistical model; examine the scale of the wellbeing measure (single item vs. multi‑item composite) and any covariates or weighting applied."
    }
   },
   {
@@ -108,11 +108,11 @@
    "source": "nemotron",
    "triage": {
     "explanations": [
-     "A data‑entry or counting error where one woman was mis‑coded or omitted.",
-     "One participant may have been classified as non‑binary/other and excluded from the women count while still being in the total N.",
-     "Simple transcription mistake when reporting the percentage."
+     "An off‑by‑one error in counting women (e.g., 40 women instead of 41).",
+     "The percentage may refer to a subsample (e.g., women among those who completed a particular task).",
+     "A different denominator was used inadvertently (e.g., 64 total participants but 62.5% corresponds to 40/64)."
     ],
-    "check": "Re‑count the raw gender categories in the dataset and ensure the sum matches the total sample size of 64."
+    "check": "Verify the raw count of women and the total number of participants over which the percentage was computed; ensure consistency with other reported sample sizes in the manuscript."
    }
   }
  ],
@@ -156,15 +156,15 @@
    "source": "regex",
    "triage": {
     "explanations": [
-     "Possible typographical error when copying the p‑value from statistical output.",
-     "The authors may have reported a one‑tailed p‑value (≈ .039) instead of the two‑tailed value (.078).",
-     "Mislabeling of the test statistic (e.g., using a different F value) leading to a different p."
+     "Possible typo in the reported p‑value.",
+     "The authors may have used a one‑tailed test while the recomputed p is two‑tailed.",
+     "A different error term or corrected degrees of freedom (e.g., Greenhouse‑Geisser) could have been applied, altering the p‑value."
     ],
-    "check": "Verify the original test output (including whether the test was one‑ or two‑tailed) and confirm the reported F value and p‑value match the same analysis."
+    "check": "Verify the exact F value, degrees of freedom, and whether any corrections (e.g., sphericity, covariates) were applied; recompute the p‑value from those numbers and see if a different test or error term matches the reported .03."
    },
    "review": {
-    "impact": "The recomputed p-value of 0.0782 for the condition × gender interaction (F(1,60)=3.21) exceeds α=0.05, whereas the reported p=.03 falls below it, so the statistical significance of this interaction would reverse, potentially altering any conclusions that depend on this interaction being significant.",
-    "author_query": "We noticed that the p-value for the condition × gender interaction (F(1,60)=3.21) recomputes to approximately 0.078 rather than the reported 0.03. Could you please confirm which value is correct and whether the interaction should be considered statistically significant at α=0.05?"
+    "impact": "The corrected p-value of 0.0782 exceeds the 0.05 significance threshold, which would render the reported condition-by-gender interaction non-significant and potentially alter the study's conclusions about gender moderation effects.",
+    "author_query": "We noticed that the p-value for the interaction effect F(1, 60) = 3.21 recomputes to approximately 0.078 rather than the reported 0.03. Could you please verify the exact p-value for this interaction term? This would help clarify whether the condition-by-gender interaction remains statistically significant at the conventional alpha level."
    }
   },
   {
@@ -203,11 +203,11 @@
    "source": "regex",
    "triage": {
     "explanations": [
-     "The percentage may have been calculated using a different denominator (e.g., only participants who answered a specific question).",
-     "Rounding or transcription error when converting the proportion to a percentage.",
-     "The numerator or denominator could have been mis‑copied from the raw counts."
+     "The denominator used for the percentage may differ from the total N=64 (e.g., only respondents to a specific question).",
+     "A counting error in the numerator (e.g., 14 instead of 12) could produce ~21.9%.",
+     "Rounding of a proportion based on a different sample size (e.g., 12/55 ≈ 21.8%)."
     ],
-    "check": "Identify the exact subgroup or variable for which the 21.9% was intended and confirm the denominator used matches that subgroup."
+    "check": "Confirm the exact count of participants with the characteristic and the denominator over which the percentage was calculated; ensure that the denominator matches the sample described in the surrounding text."
    }
   },
   {
@@ -222,15 +222,15 @@
    "source": "regex",
    "triage": {
     "explanations": [
-     "Decimal placement error – the intended multiplier may have been $0.35 rather than $3.50.",
-     "The calculation could have been performed in cents (64 × 35 ¢ = 2240 ¢ = $22.40) but the unit was mis‑specified.",
-     "A simple transcription slip where an extra zero was added or omitted."
+     "A decimal place was misplaced (e.g., 22.40 instead of 224).",
+     "The units may have been confused (e.g., reporting in hundreds of dollars or in cents).",
+     "The multiplication could have been performed with a different multiplier (e.g., 6.4 × 3.50)."
     ],
-    "check": "Check the source data for the price per item and the units used in the calculation; ensure the multiplication yields the reported amount."
+    "check": "Check the raw numbers used in the calculation (price per item and quantity) and confirm the intended unit of measurement; redo the multiplication to see whether 22.40 reflects a different scaling."
    },
    "review": {
-    "impact": "The cost calculation reports 64 × $3.50 = $22.40, but the correct product is $224.00, a tenfold discrepancy that would affect any cost-effectiveness or budgetary conclusions drawn from this analysis.",
-    "author_query": "In the cost analysis, the total booklet cost is stated as 64 × $3.50 = $22.40, but this multiplication yields $224.00. Could you please verify the intended total cost and whether the decimal placement is correct?"
+    "impact": "The cost calculation appears to be off by a factor of 10 (64 × $3.50 = $224, not $22.40), which could substantially affect any cost-effectiveness or resource-allocation conclusions drawn from the analysis.",
+    "author_query": "In the cost analysis, the total booklet cost is reported as 64 × $3.50 = $22.40, but this multiplication yields $224. Could you please confirm the intended unit cost and total expenditure? This will ensure the cost-effectiveness interpretation is based on accurate figures."
    }
   },
   {
@@ -262,11 +262,11 @@
    "source": "nemotron",
    "triage": {
     "explanations": [
-     "The reported means might be model‑estimated (e.g., least‑squares means) rather than raw sample means.",
-     "The scale may allow non‑integer values (e.g., a continuous transformation or averaging of multi‑item scales).",
-     "Data could have been weighted or adjusted (e.g., for covariates) before computing the means."
+     "The reported mean is a model‑estimated marginal mean (adjusted for covariates) rather than a raw sample mean.",
+     "The variable is a composite score derived from averaging multiple items, allowing non‑integer means even with integer‑scale items.",
+     "Missing data or weighting could produce a non‑integer mean that does not correspond to a simple integer sum."
     ],
-    "check": "Determine whether the means are raw descriptive statistics or adjusted estimates from a model, and verify the measurement scale allows the reported values."
+    "check": "Determine whether the means are raw observed averages or adjusted estimates from a statistical model; examine the scale of the wellbeing measure (single item vs. multi‑item composite) and any covariates or weighting applied."
    }
   },
   {
@@ -281,11 +281,11 @@
    "source": "nemotron",
    "triage": {
     "explanations": [
-     "A data‑entry or counting error where one woman was mis‑coded or omitted.",
-     "One participant may have been classified as non‑binary/other and excluded from the women count while still being in the total N.",
-     "Simple transcription mistake when reporting the percentage."
+     "An off‑by‑one error in counting women (e.g., 40 women instead of 41).",
+     "The percentage may refer to a subsample (e.g., women among those who completed a particular task).",
+     "A different denominator was used inadvertently (e.g., 64 total participants but 62.5% corresponds to 40/64)."
     ],
-    "check": "Re‑count the raw gender categories in the dataset and ensure the sum matches the total sample size of 64."
+    "check": "Verify the raw count of women and the total number of participants over which the percentage was computed; ensure consistency with other reported sample sizes in the manuscript."
    }
   }
  ],
@@ -299,8 +299,8 @@
   "super": "nvidia/nemotron-3-super-120b-a12b",
   "ultra": "nvidia/Nemotron-3-Ultra-550b-a55b"
  },
- "tokens": 5485,
+ "tokens": 5772,
  "notes": [],
- "seconds": 21.9,
+ "seconds": 23.1,
  "chars": 1233
 }

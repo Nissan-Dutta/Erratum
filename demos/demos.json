@@ -1,4 +1,5 @@
 [
   {"id": "spatula", "file": "spatula.txt", "label": "The black-spatula calculation", "blurb": "A ×10 multiplication slip that got past peer review and into the headlines (since corrected).", "note": "Paraphrased excerpt; the published correction fixed this number."},
-  {"id": "synthetic", "file": "synthetic.txt", "label": "Planted-error paper", "blurb": "Synthetic results section with five errors planted on purpose.", "note": "Synthetic. Errors planted deliberately."}
+  {"id": "synthetic", "file": "synthetic.txt", "label": "Planted-error paper", "blurb": "Synthetic results section with five errors planted on purpose.", "note": "Synthetic. Errors planted deliberately."},
+  {"id": "prereg", "pmcid": "PMC13646472", "label": "Preregistration cross-check", "blurb": "A real open-access paper: every checkable number recomputed, and Tavily reads its OSF preregistration.", "note": "Real open-access paper (Europe PMC). Shown because its checkable numbers are all consistent; the registry check reports only what code could confirm."}
 ]

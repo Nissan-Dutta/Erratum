@@ -19,11 +19,11 @@ Erratum splits the job:
 
 | Step | Who | What |
 |---|---|---|
-| Read | **Nemotron Lightning** (Nebius Token Factory) | Typed JSON extraction of every checkable number: test statistics, means with n and item counts, percentages with counts, and stated calculations with units. Also uses a regex fallback for APA-style statistics. Quotes that don't appear verbatim in the paper are dropped. |
+| Read | **Nemotron Lightning** (Nebius Token Factory) | Typed JSON extraction of every checkable number: test statistics, means with n and item counts, percentages with counts, and stated calculations with units. Also uses a regex fallback for APA-style statistics. **Grounding:** a quote must appear verbatim in the paper, and every number Nemotron hands to a checker must be visible in that quote, with a statistic next to its own p and operator. On real papers this dropped invented denominators ("72%" read as 72/240) and "p < .05" rewritten as "p = .05". |
 | Decide | **Code** | statcheck-style p recomputation (t, F, r, χ², z) with rounding intervals; GRIM; percentages against counts; unit-aware arithmetic (pint). |
 | Explain | **Nemotron Super** | For each flag, proposes benign explanations (typo, rounding, a different test). These are labeled unverified. |
 | Escalate | **Nemotron Ultra** | For flags that could change a conclusion: an impact sentence and a polite draft query to the authors. |
-| Cross-check | **Tavily Extract** | Reads OSF, AsPredicted, ClinicalTrials.gov and ISRCTN links found in the paper and compares the preregistered N and outcome with what the paper reports. |
+| Cross-check | **Tavily Extract** | Reads the OSF, ClinicalTrials.gov, ISRCTN or AsPredicted registry linked in the paper (advanced extraction renders JavaScript pages). Nemotron quotes the planned N; code checks the quote is really on the registry page and compares it with the paper's N (a planned minimum that was exceeded is not a mismatch). |
 
 **Code tests explanations instead of guessing.** A one-tailed result is reported as "consistent if one-tailed (paper doesn't say)" and is not flagged. A Bonferroni-adjusted p counts as consistent only when the paper itself mentions an adjustment. When a precondition is missing (df, per-cell n, integer-valued measure) the number is reported as **not checkable**, never as a flag. Severity is computed: does the corrected p cross α = .05, or is the arithmetic off by an exact power of ten?
 

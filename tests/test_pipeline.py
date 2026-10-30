@@ -56,3 +56,52 @@ def test_grim_needs_verbatim_scale_evidence(monkeypatch):
 def test_non_means_are_not_grim_candidates(monkeypatch):
     rep = run(monkeypatch)
     assert not any("34,700" in f["quote"] for f in rep["findings"])
+
+
+# False positives Nemotron produced on real open-access papers during the live smoke test.
+def test_grounding_rejects_invented_denominator():
+    q = "Participants in both treatments relied on payoff information when choosing among solutions (72% and 78% of choices)."
+    assert not P._grounded("percents", {"quote": q, "x": 72, "n": 240, "pct": "72%"})
+
+
+def test_grounding_rejects_effect_size_read_as_percent():
+    q = "Reward accumulation decreased with stochasticity (non-parametric ANOVA; F2,276 = 74.16, p < 0 .001, η2p = 0.35)"
+    assert not P._grounded("percents", {"quote": q, "x": 2, "n": 276, "pct": "35%"})
+
+
+def test_grounding_checks_the_p_operator():
+    q = "greater N3 sleep predicted higher post-sleep reward accumulation (β = 0.46, 95% CI [0.03, 0.88], t133 = 2.13, p < 0.05; Tables S15 and S16)."
+    item = {"quote": q, "test": "t", "stat": "2.13", "df1": "133", "df2": None, "p": "0.05"}
+    assert not P._grounded("stats", {**item, "p_op": "="})
+    assert P._grounded("stats", {**item, "p_op": "<"})
+
+
+def test_grounding_keeps_real_numbers():
+    assert P._grounded("percents", {"quote": PCT, "x": 41, "n": 64, "pct": "62.5%"})
+    assert P._grounded("grim", {"quote": SENT, "mean": "4.73", "n": 17})
+    assert P._grounded("arithmetic", {"quote": "60 kg × 7000 ng/kg bw/day = 42,000 ng/day",
+                                      "operands": [{"value": 60}, {"value": 7000}], "claimed": {"value": 42000}})
+
+
+def test_operator_inside_p_is_split(monkeypatch):
+    stats = [{"quote": "Pearson’s correlation, r38 = 0.36, p <.05", "test": "r", "stat": "0.36", "df1": "38", "p_op": "=", "p": "<.05"}]
+    text = TEXT + "\n\nPearson’s correlation, r38 = 0.36, p <.05"
+    monkeypatch.setattr(llm, "key", lambda: "test")
+    monkeypatch.setattr(llm, "models", lambda: {})
+    monkeypatch.setattr(P, "nemotron_extract", lambda t: ({**EXTRACTED, "stats": stats}, 0))
+    monkeypatch.setattr(P, "review", lambda flags, t: 0)
+    rep = P.audit(text)
+    r = [f for f in rep["findings"] if f["source"] == "nemotron" and f["kind"] == "statcheck"]
+    assert r and r[0]["status"] == "ok" and r[0]["reported"] == "p < .05"
+
+
+def test_prereg_n_comparison_is_code_decided():
+    assert P.compare_n(225, "minimum", 517)[0] == "match"      # exceeding a planned minimum is not a mismatch
+    assert P.compare_n(200, "exact", 180)[0] == "differs"
+    assert P.compare_n(200, "approximate", 195)[0] == "match"
+
+
+def test_stat_must_sit_next_to_its_own_p():
+    q = "The indirect effect was not significant (b = −0.01, z = −0.12, p = .90), whereas the total effect was (b = 0.40, p < 0.001)."
+    assert not P._grounded("stats", {"quote": q, "test": "z", "stat": "−0.12", "p_op": "<", "p": "0.001"})
+    assert P._grounded("stats", {"quote": q, "test": "z", "stat": "−0.12", "p_op": "=", "p": ".90"})

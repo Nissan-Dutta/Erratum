@@ -20,7 +20,7 @@ from pathlib import Path
 
 import httpx
 
-from erratum import llm, pipeline as P
+from erratum import checkers as C, llm, pipeline as P
 
 OUT = Path(__file__).parent / "results.json"
 QUERIES = ['JOURNAL:"Collabra"', 'JOURNAL:"Royal Society Open Science"', 'JOURNAL:"PLoS One" AND "preregistered"',
@@ -80,13 +80,22 @@ def run(n: int, use_llm: bool, baseline: bool):
         hit = any(f["status"] == "flag" and re.sub(r"\s", "", f["quote"])[:25] == key for f in rep["findings"])
         row = {"pmcid": pid, "title": paper["title"][:90], "planted": mutated, "original": target["quote"],
                "detected": hit, "unmodified_flags": [f["quote"] + " | " + f["detail"] for f in base["flags"]],
-               "checked_unmodified": base["counts"]["checked"]}
+               "checked_unmodified": base["counts"]["checked"], "flags_planted": len(rep["flags"]), "tokens": rep["tokens"]}
         if baseline and llm.key():
+            # Fair baseline: Ultra with reasoning on and room to finish, and the planted statistic inside its window.
+            pos = planted_text.find(mutated)
+            start = max(0, min(pos - 30000, len(planted_text) - 60000))
             prompt = ("Find any statistical reporting errors (p-values inconsistent with their test statistics) in this paper. "
-                      "Quote each erroneous statistic verbatim.\n\n" + planted_text[:60000])
+                      "Quote each erroneous statistic verbatim.\n\n" + planted_text[start:start + 60000])
             try:
-                raw, _ = llm.chat("ultra", "You are an expert statistical reviewer.", prompt, max_tokens=3000)
+                raw, used = llm.chat("ultra", "You are an expert statistical reviewer.", prompt, max_tokens=16000)
+                raw = re.sub(r"<think>.*?</think>", "", raw, flags=re.S)
                 row["baseline_detected"] = key[:18] in re.sub(r"\s", "", raw)
+                row["baseline_finish"], row["baseline_tokens"] = llm.last.finish, used
+                # Code recomputes every statistic Ultra quoted: consistent ones are false alarms.
+                claims = [c for c in C.find_stats(raw) if re.sub(r"\s", "", c["quote"])[:25] != key]
+                row["baseline_other_claims"] = len(claims)
+                row["baseline_false_alarms"] = [c["quote"] for c in claims if c["status"] == "ok"]
             except Exception as e:
                 row["baseline_error"] = str(e)[:200]
         rows.append(row)
@@ -100,7 +109,11 @@ def run(n: int, use_llm: bool, baseline: bool):
     b = [r["baseline_detected"] for r in rows if "baseline_detected" in r]
     if b:
         summary.update(baseline_n=len(b), baseline_detected=sum(b), baseline_recall=round(sum(b) / len(b), 3),
-                       baseline_ci95=wilson(sum(b), len(b)))
+                       baseline_ci95=wilson(sum(b), len(b)),
+                       baseline_other_claims=sum(r.get("baseline_other_claims", 0) for r in rows),
+                       baseline_false_alarms=sum(len(r.get("baseline_false_alarms", [])) for r in rows),
+                       baseline_truncated=sum(r.get("baseline_finish") == "length" for r in rows),
+                       erratum_flags_on_planted_papers=sum(r["flags_planted"] for r in rows))
     OUT.write_text(json.dumps({"summary": summary, "rows": rows}, indent=1))
     print(json.dumps(summary, indent=1))
 

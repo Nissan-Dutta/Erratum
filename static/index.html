@@ -48,7 +48,7 @@ textarea{min-height:140px;resize:vertical}
 .s.ok{color:var(--green)}.s.nc{color:var(--grey)}
 details summary{cursor:pointer;font-weight:600;margin-top:14px}
 .prereg{border-radius:10px;padding:12px 14px;margin-top:12px;background:var(--bg);font-size:14px;overflow-wrap:anywhere}
-.prereg.mismatch{background:var(--redbg)}.prereg.match{background:var(--greenbg)}
+.prereg.differs{background:var(--amberbg)}.prereg.match{background:var(--greenbg)}
 .foot{font:12px var(--mono);color:var(--muted);margin-top:18px;line-height:1.7}
 .err{color:var(--red);margin-top:10px}.note{font-size:13px;color:var(--muted);font-style:italic}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:s 1s linear infinite;vertical-align:-2px;margin-right:8px}@keyframes s{to{transform:rotate(360deg)}}
@@ -108,8 +108,9 @@ function render(d){
   const foot=[...Object.entries(d.models||{}).map(([k,v])=>`${k}: ${esc(v)}`), d.tokens?`${d.tokens.toLocaleString()} tokens`:'', d.seconds!=null?`${d.seconds}s`:''].filter(Boolean).join(' · ');
   const pre=p.status&&p.status!=='skipped'?`<div class="prereg ${p.status}"><div class="label">Preregistration check · Tavily</div>
     ${(p.links||[]).map(u=>`<div><a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a></div>`).join('')}
-    <div>${esc(p.detail)}</div>
-    ${p.prereg_sample_size!=null?`<div class="note">Preregistered N: ${esc(p.prereg_sample_size)} · sample size match: ${esc(p.sample_size_match??'n/a')} · outcome match: ${esc(p.outcome_match??'n/a')}</div>`:''}</div>`:'';
+    <div><b>Code:</b> ${esc(p.detail)}</div>
+    ${p.planned_n_quote?`<div class="note">Registry text: “${esc(p.planned_n_quote)}”</div>`:''}
+    ${p.outcome_note?`<div class="model"><b>Nemotron · outcome comparison (unverified):</b> ${esc(p.outcome_note)}</div>`:''}</div>`:'';
   $('#out').innerHTML=`<div class="card"><div class="label">Report</div>
    <h2 style="font-family:var(--serif);margin:4px 0 2px;font-size:24px">${esc(m.title||'Untitled')}</h2>
    ${m.note?`<div class="note">${esc(m.note)}</div>`:''}${m.doi?`<div class="by">doi:${esc(m.doi)}</div>`:''}

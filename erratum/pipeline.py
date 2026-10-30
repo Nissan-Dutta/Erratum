@@ -35,7 +35,8 @@ def resolve(ident: str) -> dict:
     if r.status_code != 200 or not r.text.strip():
         raise ValueError(f"Europe PMC has no full text for {pmcid}.")
     root = ET.fromstring(r.content)
-    title = " ".join("".join(t.itertext()) for t in root.iter("article-title"))[:300]
+    t = root.find(".//article-meta/title-group/article-title")  # not the reference list's titles
+    title = " ".join("".join(t.itertext()).split())[:300] if t is not None else None
     parts = []
     for tag in ("abstract", "body"):
         for el in root.iter(tag):
@@ -109,6 +110,60 @@ def _integer_scale(g: dict, text: str) -> tuple[bool, int | None]:
     return bool(g.get("integer_valued")), g.get("items")
 
 
+_NUM_TOKEN = re.compile(r"(?<![\w.,])[-−–]?(?:\d[\d,]*\.?\d*|\.\d+)(?![\w.,]*\d)(?P<pct>\s*%)?")
+
+
+def _numbers(quote: str) -> tuple[set, set]:
+    """Standalone numbers in a quote: (plain numbers, percentages). '42,000' -> 42000; 'F2,276' and 'η2p' don't count."""
+    plain, pcts = set(), set()
+    for m in _NUM_TOKEN.finditer(quote):
+        try:
+            v = abs(C._num(m.group(0).replace("%", "").strip().rstrip(",")))
+        except ValueError:
+            continue
+        (pcts if m["pct"] else plain).add(round(v, 9))
+    return plain, pcts
+
+
+def _in(v, nums: set) -> bool:
+    try:
+        return round(abs(C._num(v)), 9) in nums
+    except (TypeError, ValueError):
+        return False
+
+
+_OPS = {"=": "=", "<": "[<≤]", ">": "[>≥]", "≤": "[<≤]", "≥": "[>≥]"}
+
+
+def _grounded(kind: str, x: dict) -> bool:
+    """Models only propose: every number Nemotron hands to a checker must be visible in its verbatim quote.
+    Catches invented denominators (72% read as 72/N), effect sizes read as percentages, and p < .05 turned into p = .05."""
+    q = str(x.get("quote", ""))
+    plain, pcts = _numbers(q)
+    try:
+        if kind == "stats":
+            p = str(x["p"]).strip()
+            # the statistic and its own p must be adjacent: no other p-value in between (mediation sentences list several)
+            stat = re.escape(str(x["stat"]).strip().lstrip("-−–"))
+            p_ok = re.search(stat + r"(?:(?!\bp\s*[=<>≤≥]).){0,80}?\bp\s*" + _OPS.get(x.get("p_op", "="), "=")
+                             + r"\s*0?\s*" + re.escape(p.lstrip("0")) + r"(?!\d)", q)
+            dfs = [d for d in (x.get("df1"), x.get("df2")) if d not in (None, "")]
+            # df may be glued to the test letter ("t133", "F2,276"), which is exactly where the regex misses
+            df_ok = all(re.search(r"(?<![\d.])" + re.escape(str(d).strip()) + r"(?![\d.])", q) for d in dfs)
+            return bool(p_ok) and _in(x["stat"], plain) and df_ok
+        if kind == "percents":
+            pct = str(x["pct"]).rstrip("%").strip()
+            near = re.search(r"(?<![\w.,])" + re.escape(str(int(x["x"]))) + r"(?![\d.,])[^%]{0,40}?" + re.escape(pct) + r"\s*%", q)
+            return bool(near) and _in(x["n"], plain) and _in(pct, pcts)
+        if kind == "grim":
+            return _in(x["mean"], plain) and _in(x["n"], plain)
+        if kind == "arithmetic":
+            return all(_in(o["value"], plain) for o in x["operands"]) and _in(x["claimed"]["value"], plain)
+    except (KeyError, TypeError, ValueError):
+        return False
+    return False
+
+
 def _sig(f: dict) -> tuple:
     """Identity of a checked number, independent of how much surrounding text was quoted.
     Models quote whole sentences (often holding several numbers), so quote text can't be the key."""
@@ -173,14 +228,33 @@ def review(flags: list[dict], text: str) -> int:
 
 PREREG_RE = [
     (re.compile(r"osf\.io/[a-z0-9]{5}\b", re.I), lambda m: "https://" + m.group(0)),
-    (re.compile(r"aspredicted\.org/[\w./-]+", re.I), lambda m: "https://" + m.group(0).rstrip(".")),
+    (re.compile(r"aspredicted\.org/[\w./?=&-]+", re.I), lambda m: "https://" + m.group(0).rstrip(".")),
     (re.compile(r"\bNCT\d{8}\b"), lambda m: f"https://clinicaltrials.gov/study/{m.group(0)}"),
     (re.compile(r"\bISRCTN\d{8}\b"), lambda m: f"https://www.isrctn.com/{m.group(0)}"),
 ]
 
-PREREG_SYS = """Compare a preregistration/registry record with what the paper reports. Return ONLY JSON:
-{"prereg_sample_size": int|null, "prereg_primary_outcome": str|null, "sample_size_match": bool|null, "outcome_match": bool|null, "summary": str (1-2 neutral sentences)}
-Use null when the registry text doesn't state it."""
+PREREG_SYS = """You read a preregistration or trial-registry record and extract what it plans. You never judge the paper.
+Return ONLY JSON:
+{"planned_n": int|null (planned total sample size), "planned_n_quote": str|null (verbatim from the registry text, max 200 chars, containing planned_n),
+ "planned_n_type": "exact"|"minimum"|"maximum"|"approximate"|null, "primary_outcome": str|null (as registered),
+ "outcome_note": str|null (one neutral sentence: does the paper's primary outcome correspond to the registered one?)}
+Use null when the registry text doesn't state it. Count participants, not groups, chains or sessions."""
+
+
+def compare_n(planned: int, kind: str | None, paper_n: int) -> tuple[str, str]:
+    """Code decides whether the reported N is consistent with the registered plan."""
+    if kind == "minimum":
+        ok, plan = paper_n >= planned, f"at least {planned}"
+    elif kind == "maximum":
+        ok, plan = paper_n <= planned, f"at most {planned}"
+    elif kind == "approximate":
+        ok, plan = abs(paper_n - planned) <= 0.1 * planned, f"about {planned}"
+    else:
+        ok, plan = paper_n == planned, f"{planned}"
+    if ok:
+        return "match", f"Planned N: {plan}. The paper reports N = {paper_n}, consistent with the plan."
+    return "differs", (f"Planned N: {plan}. The paper reports N = {paper_n}. Differences can be legitimate "
+                       "(exclusions, attrition, stopping rules); the paper's participant flow should explain it.")
 
 
 def prereg_check(text: str, paper: dict) -> tuple[dict, int]:
@@ -197,22 +271,33 @@ def prereg_check(text: str, paper: dict) -> tuple[dict, int]:
     if not tk:
         return {**res, "status": "unchecked", "detail": "Registry links found; Tavily key not configured."}, 0
     try:
-        r = httpx.post("https://api.tavily.com/extract", json={"urls": links[:3]},
-                       headers={"Authorization": f"Bearer {tk}"}, timeout=60)
-        pages = [x.get("raw_content", "")[:8000] for x in r.json().get("results", [])]
+        # advanced depth renders JavaScript registries (OSF, ClinicalTrials.gov)
+        r = httpx.post("https://api.tavily.com/extract", json={"urls": links[:3], "extract_depth": "advanced"},
+                       headers={"Authorization": f"Bearer {tk}"}, timeout=90)
+        pages = [x.get("raw_content", "")[:20000] for x in r.json().get("results", [])]
     except Exception as e:
         return {**res, "status": "error", "detail": f"Tavily extract failed: {e}"}, 0
-    if not any(pages):
-        return {**res, "status": "unreadable", "detail": "Tavily couldn't read the registry page(s)."}, 0
-    user = (f"PAPER reports sample size: {paper.get('sample_size')}\nPAPER primary outcome: {paper.get('primary_outcome')}\n\n"
+    if sum(len(pg) for pg in pages) < 1500:  # e.g. a PDF viewer shell: nothing to compare, so don't let a model guess
+        return {**res, "status": "unreadable", "detail": "Tavily reached the registry, but the page holds no readable plan text."}, 0
+    user = (f"PAPER primary outcome: {paper.get('primary_outcome')}\n\n"
             + "\n\n---\n\n".join(f"REGISTRY {links[i]}:\n{p}" for i, p in enumerate(pages)))
     try:
         raw, used = llm.chat("lightning", PREREG_SYS, user, max_tokens=800, json_mode=True, think=False)
         d = llm.parse_json(raw)
     except Exception as e:
-        return {**res, "status": "error", "detail": f"Comparison failed: {e}"}, 0
-    mismatch = d.get("sample_size_match") is False or d.get("outcome_match") is False
-    return {**res, **d, "status": "mismatch" if mismatch else "match", "detail": d.get("summary", "")}, used
+        return {**res, "status": "error", "detail": f"Registry reading failed: {e}"}, 0
+    out = {**res, "outcome_note": d.get("outcome_note"), "registered_outcome": d.get("primary_outcome")}
+    # Ground both Ns: the planned N must sit in a verbatim registry quote, the paper's N must appear in the paper.
+    q = d.get("planned_n_quote") or ""
+    planned = d.get("planned_n")
+    if not (isinstance(planned, int) and q and any(_verbatim(q, pg) for pg in pages) and _in(planned, _numbers(q)[0])):
+        return {**out, "status": "unclear", "detail": "Tavily read the registry, but no planned sample size could be confirmed in its text."}, used
+    paper_n = paper.get("sample_size")
+    if not (isinstance(paper_n, int) and _in(paper_n, _numbers(text)[0])):
+        return {**out, "status": "unclear", "planned_n": planned, "planned_n_quote": q,
+                "detail": f"Registry plans N = {planned}, but the paper's total N couldn't be identified."}, used
+    status, detail = compare_n(planned, d.get("planned_n_type"), paper_n)
+    return {**out, "status": status, "detail": detail, "planned_n": planned, "planned_n_quote": q, "paper_n": paper_n}, used
 
 
 # ---------------------------------------------------------------- orchestration
@@ -236,6 +321,15 @@ def audit(text: str, meta: dict | None = None, use_llm: bool = True) -> dict:
             seen.add(_sig(r))
             findings.append({**r, "source": "nemotron"})
 
+        for x in extracted.get("stats", []):
+            m = re.match(r"\s*([<>=≤≥])\s*(.+)", str(x.get("p", "")))
+            if m:  # model put the operator inside p ("<.05"); split it, grounding still checks it against the quote
+                x["p_op"], x["p"] = m.group(1), m.group(2).strip()
+        for k in ("stats", "grim", "percents", "arithmetic"):
+            dropped = [x for x in extracted.get(k, []) if not _grounded(k, x)]
+            extracted[k] = [x for x in extracted.get(k, []) if _grounded(k, x)]
+            if dropped:
+                notes.append(f"{len(dropped)} Nemotron {k} item(s) dropped: numbers not visible in the quoted text.")
         for s in extracted.get("stats", []):
             try:
                 add(C.check_stat(s["test"], s["stat"], s.get("df1"), s.get("df2"), s.get("p_op", "="), s["p"], s["quote"],

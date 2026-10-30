@@ -68,7 +68,11 @@ def audit(body: AuditIn, request: Request):
         for cached in (CACHE / f"demo-{d['id']}.json", DEMO_CACHE / f"{d['id']}.json"):
             if cached.exists():
                 return JSONResponse(json.loads(cached.read_text()))
-        text, meta = (ROOT / "demos" / d["file"]).read_text(), {"title": d["label"], "note": d.get("note")}
+        if d.get("pmcid"):  # a real open-access paper, fetched from Europe PMC
+            pp = pipeline.resolve(d["pmcid"])
+            text, meta = pp["text"], {"title": pp["title"], "pmcid": pp["pmcid"], "doi": pp["doi"], "note": d.get("note")}
+        else:
+            text, meta = (ROOT / "demos" / d["file"]).read_text(), {"title": d["label"], "note": d.get("note")}
     else:
         ip = request.headers.get("x-forwarded-for", request.client.host if request.client else "?").split(",")[0]
         if _limited(ip):
