@@ -66,13 +66,6 @@ Dollar cost = tokens × Nebius Token Factory list price per model (**fill in fro
 
 ---
 
-## Video shot list (3:00)
-| Time | Shot | Voice-over (say the model names aloud) |
-|---|---|---|
-| 0:00–0:20 | Headline about black plastic utensils, then the line "60 kg × 7000 ng/kg/day = 42,000 ng/day" | "This multiplication passed peer review. The right answer is ten times bigger." |
-| 0:20–0:45 | Statcheck and GRIM numbers on screen | "About half of psychology papers have a p-value that doesn't match its own statistic. GRIM found impossible means in 36 of 71 papers. Asking an AI to find errors gives you false alarms you can't tell apart." |
-| 0:45–1:30 | Live app: spatula demo, then the planted-error demo | "Erratum: Nemotron reads the paper, math checks every number." Show the ×10 flag, Ultra's author query, the GRIM-impossible mean, and the one-tailed test that is *not* flagged. |
-| 1:30–1:55 | Preregistration demo | "If the paper links a preregistration, Tavily reads the registry; code compares the plan with what was reported, and says 'unclear' rather than guessing." |
-| 1:55–2:25 | Architecture table | "Nemotron 3.5 Lightning on Nebius Token Factory extracts the numbers with thinking off. Code grounds and checks every one. Nemotron 3 Super explains flags, Nemotron 3 Ultra drafts author queries, Tavily reads registries. About ten to thirty thousand tokens per paper." |
-| 2:25–2:50 | Benchmark slide | "On 20 real papers with planted errors, Erratum caught 20 of 20, and so did Nemotron Ultra on its own. The difference: Erratum's checks cost zero model tokens and show their math. Ultra on its own also confidently flagged numbers that were correct." |
-| 2:50–3:00 | Footer line on screen | "A flag is a number that doesn't match the numbers it was computed from. Not an accusation." |
+## Video (3:00)
+
+The word-for-word script, recording steps, live-pitch flow and judge Q&A are in [`PRESENTATION.md`](PRESENTATION.md). Say the model names aloud: Nemotron 3.5 Lightning, Nemotron 3 Super, Nemotron 3 Ultra on Nebius Token Factory, plus Tavily.
