@@ -89,13 +89,10 @@
   "super": "nvidia/nemotron-3-super-120b-a12b",
   "ultra": "nvidia/Nemotron-3-Ultra-550b-a55b"
  },
- "tokens": 10782,
+ "tokens": 10799,
  "notes": [
-  "1 Nemotron stats item(s) dropped: numbers not visible in the quoted text.",
-  "5 Nemotron grim item(s) dropped: numbers not visible in the quoted text.",
-  "2 Nemotron percents item(s) dropped: numbers not visible in the quoted text.",
-  "1 Nemotron arithmetic item(s) dropped: numbers not visible in the quoted text."
+  "Grounding: code set aside 9 number(s) Nemotron proposed but couldn't show in its verbatim quote."
  ],
- "seconds": 8.5,
+ "seconds": 21.5,
  "chars": 34811
 }

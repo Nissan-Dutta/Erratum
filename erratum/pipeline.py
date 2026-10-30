@@ -4,6 +4,7 @@ from __future__ import annotations
 import os
 import re
 import xml.etree.ElementTree as ET
+from concurrent.futures import ThreadPoolExecutor
 
 import httpx
 
@@ -76,8 +77,10 @@ def _chunks(text: str, size: int = 24000):
 def nemotron_extract(text: str) -> tuple[dict, int]:
     out = {"grim": [], "percents": [], "arithmetic": [], "stats": [], "sample_size": None, "primary_outcome": None}
     tokens = 0
-    for ch in list(_chunks(text))[:4]:
-        raw, used = llm.chat("lightning", EXTRACT_SYS, ch, max_tokens=4000, json_mode=True, think=False)
+    call = lambda ch: llm.chat("lightning", EXTRACT_SYS, ch, max_tokens=4000, json_mode=True, think=False)
+    with ThreadPoolExecutor(4) as ex:  # chunks in parallel: long papers must fit a serverless time limit
+        answers = list(ex.map(call, list(_chunks(text))[:4]))
+    for raw, used in answers:
         tokens += used
         try:
             d = llm.parse_json(raw)
@@ -325,11 +328,13 @@ def audit(text: str, meta: dict | None = None, use_llm: bool = True) -> dict:
             m = re.match(r"\s*([<>=≤≥])\s*(.+)", str(x.get("p", "")))
             if m:  # model put the operator inside p ("<.05"); split it, grounding still checks it against the quote
                 x["p_op"], x["p"] = m.group(1), m.group(2).strip()
+        dropped = 0
         for k in ("stats", "grim", "percents", "arithmetic"):
-            dropped = [x for x in extracted.get(k, []) if not _grounded(k, x)]
-            extracted[k] = [x for x in extracted.get(k, []) if _grounded(k, x)]
-            if dropped:
-                notes.append(f"{len(dropped)} Nemotron {k} item(s) dropped: numbers not visible in the quoted text.")
+            kept = [x for x in extracted.get(k, []) if _grounded(k, x)]
+            dropped += len(extracted.get(k, [])) - len(kept)
+            extracted[k] = kept
+        if dropped:
+            notes.append(f"Grounding: code set aside {dropped} number(s) Nemotron proposed but couldn't show in its verbatim quote.")
         for s in extracted.get("stats", []):
             try:
                 add(C.check_stat(s["test"], s["stat"], s.get("df1"), s.get("df2"), s.get("p_op", "="), s["p"], s["quote"],
