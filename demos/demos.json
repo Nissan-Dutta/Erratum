@@ -1,0 +1,4 @@
+[
+  {"id": "spatula", "file": "spatula.txt", "label": "The black-spatula calculation", "blurb": "A ×10 multiplication slip that got past peer review and into the headlines (since corrected).", "note": "Paraphrased excerpt; the published correction fixed this number."},
+  {"id": "synthetic", "file": "synthetic.txt", "label": "Planted-error paper", "blurb": "Synthetic results section with five errors planted on purpose.", "note": "Synthetic. Errors planted deliberately."}
+]

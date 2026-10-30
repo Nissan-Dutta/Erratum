@@ -1,0 +1,205 @@
+{
+ "summary": {
+  "papers": 20,
+  "planted_detected": 20,
+  "recall": 1.0,
+  "recall_ci95": [
+   0.839,
+   1
+  ],
+  "flags_on_unmodified": 6,
+  "numbers_checked_unmodified": 337
+ },
+ "rows": [
+  {
+   "pmcid": "PMC13696403",
+   "title": "Behavioral differentiation during the AIGC image generation waiting period: effects on cre",
+   "planted": "F(1, 56) = 9.612, p = .41",
+   "original": "F(1, 56) = 9.612, p = 0.003",
+   "detected": true,
+   "unmodified_flags": [],
+   "checked_unmodified": 6
+  },
+  {
+   "pmcid": "PMC13696248",
+   "title": "Visualizer cognitive style modulates the operation of object-based attention in processing",
+   "planted": "F (1, 33) = 3.21, p = .003",
+   "original": "F (1, 33) = 3.21, p = 0.082",
+   "detected": true,
+   "unmodified_flags": [],
+   "checked_unmodified": 57
+  },
+  {
+   "pmcid": "PMC13661393",
+   "title": "Ignoring a noisy metronome during dyadic drumming Music and speech distractors disrupt sen",
+   "planted": "F(2, 23) = 2.41, p = .003",
+   "original": "F(2, 23) = 2.41, p = 0.11",
+   "detected": true,
+   "unmodified_flags": [],
+   "checked_unmodified": 26
+  },
+  {
+   "pmcid": "PMC13641901",
+   "title": "Trophic position structures physiological trade-offs between metabolic and detoxification ",
+   "planted": "F(2, 34) = 1.24, p = .003",
+   "original": "F(2, 34) = 1.24, p = 0.301",
+   "detected": true,
+   "unmodified_flags": [
+    "F(2, 43) = 3.68, p = 0.038 | Recomputed p = 0.0335 from F(2, 43) = 3.68, but the paper reports p = 0.038.",
+    "F(2, 47) = 0.07, p = 0.927 | Recomputed p = 0.9325 from F(2, 47) = 0.07, but the paper reports p = 0.927."
+   ],
+   "checked_unmodified": 14
+  },
+  {
+   "pmcid": "PMC13704868",
+   "title": "Does low confidence drive reliance on AI, or does reliance erode confidence? A four-wave R",
+   "planted": "F(5, 381) = 1.05, p = .003",
+   "original": "F(5, 381) = 1.05, p = .386",
+   "detected": true,
+   "unmodified_flags": [],
+   "checked_unmodified": 27
+  },
+  {
+   "pmcid": "PMC13641914",
+   "title": "\nEx situ thermal acclimation alters temperature selection with limited post-release effect",
+   "planted": "t(121) = 1.77, p = .003",
+   "original": "t(121) = 1.77, p = 0.079",
+   "detected": true,
+   "unmodified_flags": [
+    "t(4) = \u20130.65, p = 0.546 | Recomputed p = 0.5511 from t(4) = \u20130.65, but the paper reports p = 0.546."
+   ],
+   "checked_unmodified": 3
+  },
+  {
+   "pmcid": "PMC13690522",
+   "title": "The impact of human-AI co-creation on perceived creativity in generative AI art: a serial ",
+   "planted": "F(2, 297) = 77.644, p = .41",
+   "original": "F(2, 297) = 77.644, p < 0.001",
+   "detected": true,
+   "unmodified_flags": [],
+   "checked_unmodified": 18
+  },
+  {
+   "pmcid": "PMC13661585",
+   "title": "When more is not more: evidence for bounded perceptual-relational integration in non-symbo",
+   "planted": "z = 12.52, p = .41",
+   "original": "z = 12.52, p < 0.001",
+   "detected": true,
+   "unmodified_flags": [],
+   "checked_unmodified": 23
+  },
+  {
+   "pmcid": "PMC13634848",
+   "title": "Affective integration in climate change communication: recency effects and negativity bias",
+   "planted": "F (2, 5093) = 1.31, p = .003",
+   "original": "F (2, 5093) = 1.31, p = 0.269",
+   "detected": true,
+   "unmodified_flags": [
+    "F (2, 5093) = 0.80, p = 0.453 | Recomputed p = 0.4494 from F(2, 5093) = 0.80, but the paper reports p = 0.453."
+   ],
+   "checked_unmodified": 18
+  },
+  {
+   "pmcid": "PMC13690793",
+   "title": "GAI hallucinations and user dependence: cognitive-affective responses and individual diffe",
+   "planted": "\u03c72(539) = 543.17, p = .003",
+   "original": "\u03c72(539) = 543.17, p = 0.442",
+   "detected": true,
+   "unmodified_flags": [],
+   "checked_unmodified": 3
+  },
+  {
+   "pmcid": "PMC13671107",
+   "title": "Judging AI-generated paintings: art-education differences in source classification",
+   "planted": "t(214.62) = 1.742, p = .003",
+   "original": "t(214.62) = 1.742, p = 0.083",
+   "detected": true,
+   "unmodified_flags": [],
+   "checked_unmodified": 20
+  },
+  {
+   "pmcid": "PMC13670213",
+   "title": "Evaluating longitudinal speed control dynamics approaching work zones: the impact of visua",
+   "planted": "F(2, 80) = 0.915, p = .003",
+   "original": "F(2, 80) = 0.915, p = 0.405",
+   "detected": true,
+   "unmodified_flags": [],
+   "checked_unmodified": 5
+  },
+  {
+   "pmcid": "PMC13669167",
+   "title": "Comparing researcher-curated AI-drafted feedback styles for negative automatic thought bel",
+   "planted": "F(3, 385) = 40.74, p = .41",
+   "original": "F(3, 385) = 40.74, p < 0.001",
+   "detected": true,
+   "unmodified_flags": [],
+   "checked_unmodified": 10
+  },
+  {
+   "pmcid": "PMC13655146",
+   "title": "Too much, too little, or just right? The inverted-U relationship between human-AI collabor",
+   "planted": "F(2, 122) = 22.364, p = .41",
+   "original": "F(2, 122) = 22.364, p < 0.001",
+   "detected": true,
+   "unmodified_flags": [],
+   "checked_unmodified": 11
+  },
+  {
+   "pmcid": "PMC13641892",
+   "title": "Ontogeny of settlement behaviours in response to Grammatophora marina diatom biofilms in t",
+   "planted": "z = \u22123.180, p = .41",
+   "original": "z = \u22123.180, p < 0.01",
+   "detected": true,
+   "unmodified_flags": [],
+   "checked_unmodified": 21
+  },
+  {
+   "pmcid": "PMC13669202",
+   "title": "Internal focalization influences real-life empathy: a literary contribution to wellbeing",
+   "planted": "F(1,365) = 8.71, p = .41",
+   "original": "F(1,365) = 8.71, p = 0.003",
+   "detected": true,
+   "unmodified_flags": [
+    "t(353) = 1.89, p = 0.058 | Recomputed p = 0.0596 from t(353) = 1.89, but the paper reports p = 0.058.",
+    "F(1,340) = 0.10, p = 0.759 | Recomputed p = 0.7520 from F(1, 340) = 0.10, but the paper reports p = 0.759."
+   ],
+   "checked_unmodified": 33
+  },
+  {
+   "pmcid": "PMC13646054",
+   "title": "Optimal presentation of decision explanations: investigating the effects of explainability",
+   "planted": "F (3, 63) = 4.636, p = .41",
+   "original": "F (3, 63) = 4.636, p < 0.05",
+   "detected": true,
+   "unmodified_flags": [],
+   "checked_unmodified": 12
+  },
+  {
+   "pmcid": "PMC13674705",
+   "title": "Concurrent TMS-EEG to characterise interhemispheric signal propagation over the motor and ",
+   "planted": "F(1,26) = 10.484, p = .41",
+   "original": "F(1,26) = 10.484, p = 0.003",
+   "detected": true,
+   "unmodified_flags": [],
+   "checked_unmodified": 15
+  },
+  {
+   "pmcid": "PMC13655004",
+   "title": "Independent judgment before viewing generative AI recommendations reduces susceptibility t",
+   "planted": "\u03c72(2) = 4.233, p = .003",
+   "original": "\u03c72(2) = 4.233, p = 0.120",
+   "detected": true,
+   "unmodified_flags": [],
+   "checked_unmodified": 2
+  },
+  {
+   "pmcid": "PMC13669158",
+   "title": "When illustrations mislead: cognitive load and the simple view of reading in scientific te",
+   "planted": "F(2, 169) = 0.74, p = .003",
+   "original": "F(2, 169) = 0.74, p = 0.479",
+   "detected": true,
+   "unmodified_flags": [],
+   "checked_unmodified": 13
+  }
+ ]
+}

@@ -1,0 +1,5 @@
+[Paraphrased excerpt for demonstration. Based on the widely reported black-plastic kitchen utensil study (Chemosphere, 2024), whose authors published a correction in December 2024 fixing this calculation.]
+
+Exposure assessment. Using the median BDE-209 concentration measured in black plastic kitchen utensils and a migration scenario for hot cooking oil, we estimated a median intake of 34,700 ng/day from utensil use alone.
+
+To put this in context, we compared the estimated intake with the U.S. EPA oral reference dose for BDE-209 of 7000 ng/kg bw/day. For a 60 kg adult, the corresponding reference intake is 60 kg × 7000 ng/kg bw/day = 42,000 ng/day. The estimated utensil-derived intake therefore approaches the reference dose, at 83% of the reference intake.

@@ -1,0 +1,7 @@
+[Synthetic paper written for this demo. Errors were planted deliberately; no real study is described.]
+
+Method. Participants (N = 64) were randomly assigned to a gratitude-journaling condition (n = 32) or a control condition (n = 32). Wellbeing was measured with a single 7-point Likert item. Of the 64 participants, 41 were women (62.5%), and 12 of 64 (21.9%) reported prior journaling experience. The study was preregistered (hypotheses, sample size, and analysis plan).
+
+Results. Wellbeing after the intervention was higher in the journaling condition (M = 5.19, SD = 1.02, n = 32) than in the control condition (M = 4.73, SD = 1.11, n = 17), t(62) = 1.72, p = .045. Baseline wellbeing did not differ between conditions, t(62) = 0.41, p = .68. A two-way ANOVA showed an interaction between condition and gender, F(1, 60) = 3.21, p = .03. Weekly journaling minutes correlated with wellbeing change, r(30) = .41, p = .02. Dropout did not differ between conditions, χ2(1, N = 64) = 0.52, p = .47.
+
+Cost analysis. Each participant received a booklet costing $3.50; across the full sample this came to 64 × 3.50 dollars = 22.40 dollars. Average session time was 12 minutes over 21 sessions, i.e. 12 min × 21 = 252 min per participant.

@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Erratum</title>
+<meta name="description" content="Nemotron reads the paper. Math checks every number.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f7f5f0;--panel:#fffdf8;--ink:#1c1b19;--muted:#6b675f;--line:#e4dfd4;--accent:#76b900;--red:#c2410c;--redbg:#fff1e8;--amber:#a16207;--amberbg:#fdf6e3;--green:#3f7d20;--greenbg:#eef6e6;--grey:#8a857b;--mono:'JetBrains Mono',ui-monospace,monospace;--serif:'Fraunces',Georgia,serif}
+@media (prefers-color-scheme:dark){:root{--bg:#121211;--panel:#1b1b19;--ink:#ecebe6;--muted:#a19d93;--line:#2e2d2a;--redbg:#2a1810;--red:#f08a5d;--amberbg:#2a2312;--amber:#e3b341;--greenbg:#16230f;--green:#8fcf5f;--grey:#7d796f}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 Inter,system-ui,sans-serif}
+.wrap{max-width:920px;margin:0 auto;padding:40px 16px 80px}
+header h1{font-family:var(--serif);font-weight:650;font-size:44px;letter-spacing:-.02em;margin:0}
+.tag{font-size:18px;color:var(--muted);margin:6px 0 4px}.tag b{color:var(--ink);font-weight:600}
+.by{font-size:12.5px;color:var(--muted);font-family:var(--mono)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-top:22px}
+.tabs{display:flex;gap:6px;margin-bottom:12px}.tabs button{border:1px solid var(--line);background:none;color:var(--muted);padding:6px 12px;border-radius:999px;cursor:pointer;font:inherit;font-size:13px}
+.tabs button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+input,textarea{width:100%;font:14px var(--mono);padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+textarea{min-height:140px;resize:vertical}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.go{background:var(--accent);color:#0b1400;border:0;padding:11px 20px;border-radius:10px;cursor:pointer;font:inherit;font-weight:600}
+.go:disabled{opacity:.5;cursor:wait}
+.demos{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-top:10px}
+.demo{text-align:left;border:1px dashed var(--line);background:none;color:var(--ink);border-radius:10px;padding:12px;cursor:pointer;font:inherit}
+.demo:hover{border-color:var(--accent)}.demo b{display:block;font-size:14px}.demo span{font-size:12.5px;color:var(--muted)}
+.label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+.stat{border:1px solid var(--line);border-radius:10px;padding:12px}.stat .n{font:600 28px var(--serif)}.stat .l{font-size:12px;color:var(--muted)}
+.stat.red .n{color:var(--red)}
+@media (max-width:620px){.stats{grid-template-columns:repeat(2,1fr)}header h1{font-size:36px}}
+.flag{border:1px solid var(--line);border-left:4px solid var(--amber);border-radius:10px;padding:14px 16px;margin-top:12px}
+.flag.decision{border-left-color:var(--red)}
+.pill{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;margin:0 6px 4px 0;background:var(--amberbg);color:var(--amber)}
+.flag.decision .pill.sev{background:var(--redbg);color:var(--red)}
+.pill.k{background:none;border:1px solid var(--line);color:var(--muted)}
+.quote{font:13.5px var(--mono);background:var(--bg);border-radius:8px;padding:8px 10px;margin:8px 0;overflow-wrap:anywhere}
+.verdict{font-size:14.5px}.verdict b{font-weight:600}
+.model{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px;font-size:13.5px;color:var(--muted)}
+.model b{color:var(--ink);font-weight:600}.model ul{margin:4px 0 0;padding-left:18px}
+.query{font-size:13.5px;background:var(--bg);border-radius:8px;padding:10px;margin-top:6px}
+.copy{float:right;border:1px solid var(--line);background:none;color:var(--muted);border-radius:6px;font-size:11px;cursor:pointer;padding:2px 8px;margin-left:8px}
+.okrow{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:13px}
+.okrow code{font-family:var(--mono);flex:0 0 44%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.okrow .d{color:var(--muted)}.okrow .s{flex:0 0 14px;font-weight:700}
+.s.ok{color:var(--green)}.s.nc{color:var(--grey)}
+details summary{cursor:pointer;font-weight:600;margin-top:14px}
+.prereg{border-radius:10px;padding:12px 14px;margin-top:12px;background:var(--bg);font-size:14px;overflow-wrap:anywhere}
+.prereg.mismatch{background:var(--redbg)}.prereg.match{background:var(--greenbg)}
+.foot{font:12px var(--mono);color:var(--muted);margin-top:18px;line-height:1.7}
+.err{color:var(--red);margin-top:10px}.note{font-size:13px;color:var(--muted);font-style:italic}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:s 1s linear infinite;vertical-align:-2px;margin-right:8px}@keyframes s{to{transform:rotate(360deg)}}
+a{color:inherit}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Erratum</h1>
+  <p class="tag"><b>Nemotron reads the paper. Math checks every number.</b></p>
+  <div class="by">NVIDIA Nemotron on Nebius Token Factory · Tavily · statcheck · GRIM · unit-aware arithmetic</div>
+</header>
+
+<div class="card">
+  <div class="tabs"><button class="on" data-t="id">Paper ID</button><button data-t="text">Paste text</button></div>
+  <div id="t-id"><input id="ident" placeholder="PMCID or DOI of an open-access paper, e.g. PMC13354088"></div>
+  <div id="t-text" hidden><textarea id="txt" placeholder="Paste a results section…"></textarea></div>
+  <div class="row"><button class="go" id="go">Check the numbers</button><span id="status" class="note"></span></div>
+  <div class="label" style="margin-top:18px">Or try a demo</div>
+  <div class="demos" id="demos"></div>
+  <div id="err" class="err"></div>
+</div>
+
+<div id="out"></div>
+<p class="foot">Code makes every verdict. Models find the numbers and suggest explanations, and their suggestions are labeled as unverified.
+A flag means a number in the paper doesn't match the numbers it was computed from. It is not an accusation. A missing precondition counts as "not checkable", never as a flag.</p>
+</div>
+
+<script>
+const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let tab='id';
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{tab=b.dataset.t;document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));$('#t-id').hidden=tab!=='id';$('#t-text').hidden=tab!=='text'});
+fetch('/api/demos').then(r=>r.json()).then(ds=>{$('#demos').innerHTML=ds.map(d=>`<button class="demo" data-id="${d.id}"><b>${esc(d.label)}</b><span>${esc(d.blurb)}</span></button>`).join('');
+  document.querySelectorAll('.demo').forEach(b=>b.onclick=()=>run({demo:b.dataset.id}))});
+$('#go').onclick=()=>run(tab==='id'?{input:$('#ident').value}:{text:$('#txt').value});
+const KIND={statcheck:'p-value',grim:'GRIM',percent:'percentage',arithmetic:'arithmetic'};
+async function run(body){
+  $('#err').textContent='';$('#go').disabled=true;$('#status').innerHTML='<span class="spin"></span>Nemotron is extracting the numbers; code is recomputing each one…';
+  try{const r=await fetch('/api/audit',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
+    const d=await r.json(); if(!r.ok) throw new Error(d.detail||r.statusText); render(d); $('#out').scrollIntoView({behavior:'smooth'});}
+  catch(e){$('#err').textContent=e.message}
+  finally{$('#go').disabled=false;$('#status').textContent=''}
+}
+function sevLabel(f){if(f.severity!=='decision')return 'Inconsistent';return f.kind==='arithmetic'?'Order-of-magnitude error':'Changes significance'}
+function flagCard(f){
+  const t=f.triage,rv=f.review;
+  return `<div class="flag ${f.severity}"><span class="pill sev">${sevLabel(f)}</span><span class="pill k">${KIND[f.kind]||f.kind}</span><span class="pill k">${f.source==='nemotron'?'found by Nemotron':'found by pattern'}</span>
+  <div class="quote">“${esc(f.quote)}”</div><div class="verdict"><b>Code:</b> ${esc(f.detail)}</div>
+  ${rv?`<div class="model"><b>Nemotron Ultra · impact (unverified):</b> ${esc(rv.impact)}<div class="query"><button class="copy" onclick="navigator.clipboard.writeText(this.nextElementSibling.textContent);this.textContent='copied'">copy</button><span>${esc(rv.author_query)}</span></div></div>`:''}
+  ${t&&t.explanations&&t.explanations.length?`<div class="model"><b>Nemotron Super · possible benign explanations (unverified):</b><ul>${t.explanations.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>${t.check?`<div style="margin-top:4px"><b>What to check:</b> ${esc(t.check)}</div>`:''}</div>`:''}
+  </div>`}
+function render(d){
+  const c=d.counts,m=d.meta||{},p=d.prereg||{};
+  const cond=d.findings.filter(f=>f.one_tailed);
+  const rest=d.findings.filter(f=>f.status!=='flag'&&!f.one_tailed);
+  const foot=[...Object.entries(d.models||{}).map(([k,v])=>`${k}: ${esc(v)}`), d.tokens?`${d.tokens.toLocaleString()} tokens`:'', d.seconds!=null?`${d.seconds}s`:''].filter(Boolean).join(' · ');
+  const pre=p.status&&p.status!=='skipped'?`<div class="prereg ${p.status}"><div class="label">Preregistration check · Tavily</div>
+    ${(p.links||[]).map(u=>`<div><a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a></div>`).join('')}
+    <div>${esc(p.detail)}</div>
+    ${p.prereg_sample_size!=null?`<div class="note">Preregistered N: ${esc(p.prereg_sample_size)} · sample size match: ${esc(p.sample_size_match??'n/a')} · outcome match: ${esc(p.outcome_match??'n/a')}</div>`:''}</div>`:'';
+  $('#out').innerHTML=`<div class="card"><div class="label">Report</div>
+   <h2 style="font-family:var(--serif);margin:4px 0 2px;font-size:24px">${esc(m.title||'Untitled')}</h2>
+   ${m.note?`<div class="note">${esc(m.note)}</div>`:''}${m.doi?`<div class="by">doi:${esc(m.doi)}</div>`:''}
+   <div class="stats"><div class="stat"><div class="n">${c.checked}</div><div class="l">numbers checked</div></div>
+   <div class="stat ${c.flag?'red':''}"><div class="n">${c.flag}</div><div class="l">inconsistencies</div></div>
+   <div class="stat ${c.decision?'red':''}"><div class="n">${c.decision}</div><div class="l">could change a conclusion</div></div>
+   <div class="stat"><div class="n">${c.not_checkable}</div><div class="l">not checkable</div></div></div>
+   ${pre}
+   ${d.flags.map(flagCard).join('')||'<p style="margin-top:14px">Every checkable number is consistent. ✓</p>'}
+   ${cond.length?`<div class="label" style="margin-top:18px">Consistent only under an unstated assumption</div>${cond.map(f=>`<div class="flag" style="border-left-color:var(--grey)"><div class="quote">“${esc(f.quote)}”</div><div class="verdict"><b>Code:</b> ${esc(f.detail)}</div></div>`).join('')}`:''}
+   ${rest.length?`<details><summary>${rest.length} consistent or not checkable</summary>${rest.map(f=>`<div class="okrow"><span class="s ${f.status==='ok'?'ok':'nc'}">${f.status==='ok'?'✓':'–'}</span><code title="${esc(f.quote)}">${esc(f.quote)}</code><span class="d">${esc(f.detail)}</span></div>`).join('')}</details>`:''}
+   <div class="foot">${foot}
+   ${(d.notes||[]).map(n=>`<div>${esc(n)}</div>`).join('')}</div></div>`;
+}
+</script>
+</body>
+</html>
