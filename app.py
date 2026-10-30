@@ -8,8 +8,8 @@ import time
 from collections import defaultdict, deque
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel
 
 from erratum import llm, pipeline
@@ -22,14 +22,36 @@ DEMOS = json.loads((ROOT / "demos" / "demos.json").read_text())
 RATE = int(os.getenv("AUDITS_PER_HOUR", "8"))
 MAX_CHARS = 200_000
 
+INDEX_HTML = (ROOT / "static" / "index.html").read_bytes()
+
 app = FastAPI(title="Erratum")
 _hits: dict[str, deque] = defaultdict(deque)
+
+
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    response: Response = await call_next(request)
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    response.headers.setdefault("Content-Security-Policy", "frame-ancestors 'none'")  # only framing; scripts unaffected
+    return response
 
 
 class AuditIn(BaseModel):
     input: str | None = None   # PMCID or DOI
     text: str | None = None    # pasted text
     demo: str | None = None    # demo id
+
+
+def _client_ip(request: Request) -> str:
+    """Vercel overwrites X-Forwarded-For with the real client IP, so it's only trustworthy there.
+    Anywhere else (Docker, plain uvicorn) a client can send any value, so use the socket peer."""
+    if os.getenv("VERCEL"):
+        fwd = request.headers.get("x-forwarded-for")
+        if fwd:
+            return fwd.split(",")[0].strip()
+    return request.client.host if request.client else "?"
 
 
 def _limited(ip: str) -> bool:
@@ -44,7 +66,8 @@ def _limited(ip: str) -> bool:
 
 @app.get("/")
 def index():
-    return FileResponse(ROOT / "static" / "index.html")
+    # A plain response, not FileResponse: Starlette's Range parser is quadratic in the number of ranges.
+    return HTMLResponse(INDEX_HTML)
 
 
 @app.get("/api/demos")
@@ -74,8 +97,7 @@ def audit(body: AuditIn, request: Request):
         else:
             text, meta = (ROOT / "demos" / d["file"]).read_text(), {"title": d["label"], "note": d.get("note")}
     else:
-        ip = request.headers.get("x-forwarded-for", request.client.host if request.client else "?").split(",")[0]
-        if _limited(ip):
+        if _limited(_client_ip(request)):
             raise HTTPException(429, f"Limit is {RATE} audits per hour. Try a demo paper.")
         if body.text and body.text.strip():
             text, meta = body.text, {"title": "Pasted text"}

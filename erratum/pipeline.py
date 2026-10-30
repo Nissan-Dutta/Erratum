@@ -3,10 +3,10 @@ from __future__ import annotations
 
 import os
 import re
-import xml.etree.ElementTree as ET
 from concurrent.futures import ThreadPoolExecutor
 
 import httpx
+from defusedxml import ElementTree as ET
 
 from . import checkers as C
 from . import llm
@@ -307,6 +307,7 @@ def prereg_check(text: str, paper: dict) -> tuple[dict, int]:
 
 def audit(text: str, meta: dict | None = None, use_llm: bool = True) -> dict:
     meta = meta or {}
+    text = C.neutralize_long_numbers(text)  # before any checker or model sees the text
     findings = C.find_stats(text) + C.find_percents(text) + C.find_arithmetic(text)
     tokens, notes = 0, []
     extracted = {}

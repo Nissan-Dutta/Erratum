@@ -49,18 +49,20 @@ def _check_budget():
         raise BudgetExceeded("Daily model budget reached. Cached demo papers still work.")
 
 
-def models() -> dict[str, str]:
-    """Role -> model id. Env wins; otherwise pick Nemotron models from /models."""
-    if _models:
-        return _models
-    env = {r: os.getenv(f"MODEL_{r.upper()}") for r in ("lightning", "super", "ultra")}
-    ids: list[str] = []
-    if key() and not all(env.values()):
-        try:
-            r = httpx.get(f"{BASE}/models", headers={"Authorization": f"Bearer {key()}"}, timeout=20)
-            ids = [m["id"] for m in r.json().get("data", [])]
-        except Exception:
-            ids = []
+ROLES = ("lightning", "super", "ultra")
+MODELS_RETRY_S = 60  # a failed or partial /models lookup is retried after this long
+_models_checked_at = 0.0
+
+
+def _model_ids() -> list[str]:
+    try:
+        r = httpx.get(f"{BASE}/models", headers={"Authorization": f"Bearer {key()}"}, timeout=20)
+        return [m["id"] for m in r.json().get("data", [])]
+    except Exception:
+        return []
+
+
+def _pick_roles(ids: list[str]) -> dict[str, str | None]:
     nemo = [i for i in ids if "nemotron" in i.lower() and not i.lower().endswith("-vl")]  # text roles only
 
     def pick(*words):
@@ -70,12 +72,25 @@ def models() -> dict[str, str]:
                     return i
         return nemo[0] if nemo else None
 
-    _models.update(
-        lightning=env["lightning"] or pick("lightning", "nano", "mini"),
-        super=env["super"] or pick("super", "49b", "70b"),
-        ultra=env["ultra"] or pick("ultra", "253b", "super"),
-    )
-    return _models
+    return {"lightning": pick("lightning", "nano", "mini"), "super": pick("super", "49b", "70b"),
+            "ultra": pick("ultra", "253b", "super")}
+
+
+def models() -> dict[str, str | None]:
+    """Role -> model id. Env wins; otherwise pick Nemotron models from /models.
+    Only a complete answer is cached, so one failed lookup can't disable the models until a restart."""
+    global _models_checked_at
+    if _models:
+        return _models
+    env = {r: os.getenv(f"MODEL_{r.upper()}") for r in ROLES}
+    resolved: dict[str, str | None] = dict(env)
+    if not all(env.values()) and key() and time.time() - _models_checked_at >= MODELS_RETRY_S:
+        _models_checked_at = time.time()
+        found = _pick_roles(_model_ids())
+        resolved = {r: env[r] or found[r] for r in ROLES}
+    if all(resolved.values()):
+        _models.update(resolved)
+    return resolved
 
 
 last = threading.local()  # last.finish = finish_reason of this thread's latest call
