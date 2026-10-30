@@ -50,14 +50,15 @@ def resolve(ident: str) -> dict:
 EXTRACT_SYS = """You extract numbers from a scientific paper for automated recomputation. You never judge correctness.
 Return ONLY a JSON object with these keys (empty lists if none):
 {
- "grim": [{"quote": str, "mean": str (exactly as printed, keep trailing zeros), "n": int|null (per-cell n for THIS mean), "items": int|null (number of items averaged, 1 for single-item), "integer_valued": bool (true only for counts, Likert items, integer scores)}],
+ "grim": [{"quote": str, "mean": str (exactly as printed, keep trailing zeros), "n": int|null (per-cell n for THIS mean), "scale_quote": str|null (verbatim text, from anywhere in the paper and often in Methods, describing how this measure was scored, e.g. \"a single 7-point Likert item\"), "items": int|null (number of items averaged, 1 for single-item), "integer_valued": bool (true if, per scale_quote, every response is a whole number: counts, Likert/rating items, integer scores)}],
  "percents": [{"quote": str, "x": int, "n": int, "pct": str (as printed)}],
  "arithmetic": [{"quote": str, "operands": [{"value": number, "unit": str|null}], "op": "multiply"|"divide"|"add"|"subtract", "claimed": {"value": number, "unit": str|null}}],
  "stats": [{"quote": str, "test": "t"|"F"|"r"|"chi2"|"z", "stat": str, "df1": str|null, "df2": str|null, "p_op": "="|"<"|">", "p": str}],
  "sample_size": int|null,
  "primary_outcome": str|null
 }
-Rules: quote must be copied verbatim from the text (max 200 chars). Only include an arithmetic item when the paper itself states a computed result from stated inputs (e.g. intake = mass x dose). Use null when a value is not stated; never guess n."""
+Rules: quote must be copied verbatim from the text (max 200 chars). Only include an arithmetic item when the paper itself states a computed result from stated inputs (e.g. intake = mass x dose). Use null when a value is not stated; never guess n.
+List EVERY reported mean (M) of a measured variable under "grim", whatever its scale (not test statistics or correlations); integer_valued is a separate field, not a filter."""
 
 
 def _chunks(text: str, size: int = 24000):
@@ -75,7 +76,7 @@ def nemotron_extract(text: str) -> tuple[dict, int]:
     out = {"grim": [], "percents": [], "arithmetic": [], "stats": [], "sample_size": None, "primary_outcome": None}
     tokens = 0
     for ch in list(_chunks(text))[:4]:
-        raw, used = llm.chat("lightning", EXTRACT_SYS, ch, max_tokens=4000, json_mode=True)
+        raw, used = llm.chat("lightning", EXTRACT_SYS, ch, max_tokens=4000, json_mode=True, think=False)
         tokens += used
         try:
             d = llm.parse_json(raw)
@@ -91,6 +92,39 @@ def nemotron_extract(text: str) -> tuple[dict, int]:
 def _verbatim(q: str, text: str) -> bool:
     norm = lambda s: re.sub(r"\s+", " ", s).strip().lower()
     return bool(q) and norm(q)[:60] in norm(text)
+
+
+MEAN_RE = re.compile(r"\bM\s*=|\bmeans?\b|\baverage", re.I)
+SINGLE_ITEM_RE = re.compile(r"\bsingle\b.{0,40}\b(likert|\d+-point|rating)|\b(likert|\d+-point|rating)\b.{0,20}\bsingle\b", re.I)
+
+
+def _integer_scale(g: dict, text: str) -> tuple[bool, int | None]:
+    """Is this mean built from whole-number responses? Only with a verbatim scale description as evidence:
+    either the model says so, or code sees a single Likert/k-point/rating item (then items = 1)."""
+    sq = g.get("scale_quote") or ""
+    if not _verbatim(sq, text):
+        return False, g.get("items")
+    if SINGLE_ITEM_RE.search(sq):
+        return True, 1
+    return bool(g.get("integer_valued")), g.get("items")
+
+
+def _sig(f: dict) -> tuple:
+    """Identity of a checked number, independent of how much surrounding text was quoted.
+    Models quote whole sentences (often holding several numbers), so quote text can't be the key."""
+    k = f["kind"]
+    try:
+        if k == "statcheck":
+            return k, f["test"], round(abs(C._num(f["stat"])), 6), round(float(f["p"]), 6)
+        if k == "percent":
+            return k, int(f["x"]), int(f["n"]), round(float(f["pct"]), 6)
+        if k == "grim":
+            return k, str(f["mean"]).strip(), str(f["n"])
+        if k == "arithmetic":
+            return k, round(C._num(f["claimed"]), 9)
+    except (KeyError, TypeError, ValueError):
+        pass
+    return k, re.sub(r"\s+", "", f["quote"])[:30]
 
 
 # ---------------------------------------------------------------- review (model proposes, code already decided)
@@ -110,10 +144,10 @@ def review(flags: list[dict], text: str) -> int:
         return 0
     listing = "\n".join(f"[{i}] {f['kind']}: \"{f['quote']}\" -> {f['detail']}" for i, f in enumerate(flags))
     try:
-        raw, used = llm.chat("super", TRIAGE_SYS, listing, max_tokens=2500, json_mode=True)
+        raw, used = llm.chat("super", TRIAGE_SYS, listing, max_tokens=8000, json_mode=True)
         tokens += used
         for x in llm.parse_json(raw).get("flags", []):
-            if 0 <= int(x.get("id", -1)) < len(flags):
+            if isinstance(x, dict) and 0 <= int(x.get("id", -1)) < len(flags):
                 flags[int(x["id"])]["triage"] = {"explanations": x.get("explanations", [])[:3], "check": x.get("check", "")}
     except Exception as e:
         print("triage failed", e)
@@ -125,10 +159,10 @@ def review(flags: list[dict], text: str) -> int:
             pos = text.find(f["quote"][:40])
             ctx.append(f"[{i}] {f['detail']}\nContext: …{text[max(0, pos - 600): pos + 600]}…")
         try:
-            raw, used = llm.chat("ultra", REVIEW_SYS, "\n\n".join(ctx), max_tokens=2500, json_mode=True)
+            raw, used = llm.chat("ultra", REVIEW_SYS, "\n\n".join(ctx), max_tokens=8000, json_mode=True)
             tokens += used
             for x in llm.parse_json(raw).get("flags", []):
-                if int(x.get("id", -1)) in serious:
+                if isinstance(x, dict) and int(x.get("id", -1)) in serious:
                     flags[int(x["id"])]["review"] = {"impact": x.get("impact", ""), "author_query": x.get("author_query", "")}
         except Exception as e:
             print("review failed", e)
@@ -173,7 +207,7 @@ def prereg_check(text: str, paper: dict) -> tuple[dict, int]:
     user = (f"PAPER reports sample size: {paper.get('sample_size')}\nPAPER primary outcome: {paper.get('primary_outcome')}\n\n"
             + "\n\n---\n\n".join(f"REGISTRY {links[i]}:\n{p}" for i, p in enumerate(pages)))
     try:
-        raw, used = llm.chat("lightning", PREREG_SYS, user, max_tokens=800, json_mode=True)
+        raw, used = llm.chat("lightning", PREREG_SYS, user, max_tokens=800, json_mode=True, think=False)
         d = llm.parse_json(raw)
     except Exception as e:
         return {**res, "status": "error", "detail": f"Comparison failed: {e}"}, 0
@@ -194,13 +228,12 @@ def audit(text: str, meta: dict | None = None, use_llm: bool = True) -> dict:
             tokens += used
         except Exception as e:
             notes.append(f"Nemotron extraction unavailable ({e}); regex checks only.")
-        seen = {re.sub(r"\s+", "", f["quote"])[:30] for f in findings}
+        seen = {_sig(f) for f in findings}
 
         def add(r, q):
-            key_ = re.sub(r"\s+", "", q)[:30]
-            if key_ in seen or not _verbatim(q, text):
-                return  # dedupe and drop hallucinated quotes
-            seen.add(key_)
+            if not _verbatim(q, text) or _sig(r) in seen:
+                return  # drop hallucinated quotes and numbers the regex already checked
+            seen.add(_sig(r))
             findings.append({**r, "source": "nemotron"})
 
         for s in extracted.get("stats", []):
@@ -210,7 +243,10 @@ def audit(text: str, meta: dict | None = None, use_llm: bool = True) -> dict:
             except Exception:
                 pass
         for g in extracted.get("grim", []):
-            add(C.check_grim(g.get("mean"), g.get("n"), g.get("items"), g.get("integer_valued"), g.get("quote", "")), g.get("quote", ""))
+            if not MEAN_RE.search(str(g.get("quote", ""))):
+                continue  # GRIM is about means; models sometimes list medians or other numbers here
+            integer, items = _integer_scale(g, text)
+            add(C.check_grim(g.get("mean"), g.get("n"), items, integer, g.get("quote", "")), g.get("quote", ""))
         for p in extracted.get("percents", []):
             try:
                 add(C.check_percent(p["x"], p["n"], str(p["pct"]), p["quote"]), p["quote"])

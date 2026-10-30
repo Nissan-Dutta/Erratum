@@ -42,3 +42,7 @@ def test_units_convert():
     r = C.check_arithmetic([{"value": 60, "unit": "kg"}, {"value": 7, "unit": "µg/kg/day"}], "multiply",
                            {"value": 0.42, "unit": "mg/day"}, "q")
     assert r["status"] == "ok"
+
+
+def test_percent_sign_copied_by_model():
+    assert C.check_percent(41, 64, "62.5%", "q")["status"] == "flag"

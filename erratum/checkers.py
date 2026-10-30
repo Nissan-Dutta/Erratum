@@ -63,7 +63,7 @@ def _p_consistent(pop: str, rep: float, rep_dec: int, lo: float, hi: float) -> b
 
 
 def check_stat(test, stat_s, df1, df2, pop, p_s, quote, adjust_ok: bool = False) -> dict:
-    out = {"kind": "statcheck", "test": test, "quote": quote.strip()}
+    out = {"kind": "statcheck", "test": test, "quote": quote.strip(), "stat": str(stat_s).strip(), "p": str(p_s).strip()}
     if test in ("t", "F", "r", "chi2") and not df1:
         return {**out, "status": "not_checkable", "detail": "Degrees of freedom missing."}
     if test == "F" and not df2:
@@ -123,7 +123,7 @@ def find_stats(text: str) -> list[dict]:
 # ---------------------------------------------------------------- GRIM
 
 def check_grim(mean_s, n, items, integer_valued, quote) -> dict:
-    out = {"kind": "grim", "quote": str(quote).strip()}
+    out = {"kind": "grim", "quote": str(quote).strip(), "mean": str(mean_s), "n": n}
     if not integer_valued:
         return {**out, "status": "not_checkable", "detail": "Measure isn't integer-valued, so GRIM doesn't apply."}
     try:
@@ -155,8 +155,9 @@ PCT_RE = re.compile(r"(?P<x>\d+)\s*(?:/|of|out of)\s*(?P<n>\d+)\s*(?:[a-z]+\s*)?
 
 
 def check_percent(x, n, pct_s, quote) -> dict:
-    out = {"kind": "percent", "quote": str(quote).strip()}
+    pct_s = str(pct_s).strip().rstrip("%").strip()  # models often copy the % sign
     x, n = int(x), int(n or 0)
+    out = {"kind": "percent", "quote": str(quote).strip(), "x": x, "n": n, "pct": pct_s}
     if not n:
         return {**out, "status": "not_checkable", "detail": "Denominator missing."}
     d = _decimals(pct_s)
@@ -203,7 +204,7 @@ def _sig_tolerance(v: float) -> float:
 
 
 def check_arithmetic(operands, op, claimed, quote) -> dict:
-    out = {"kind": "arithmetic", "quote": str(quote).strip()}
+    out = {"kind": "arithmetic", "quote": str(quote).strip(), "claimed": str((claimed or {}).get("value"))}
     try:
         u = _u()
         qs = [_num(o["value"]) * u(_clean_unit(o.get("unit"))) for o in operands]

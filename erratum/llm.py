@@ -61,7 +61,7 @@ def models() -> dict[str, str]:
             ids = [m["id"] for m in r.json().get("data", [])]
         except Exception:
             ids = []
-    nemo = [i for i in ids if "nemotron" in i.lower()]
+    nemo = [i for i in ids if "nemotron" in i.lower() and not i.lower().endswith("-vl")]  # text roles only
 
     def pick(*words):
         for w in words:
@@ -78,7 +78,13 @@ def models() -> dict[str, str]:
     return _models
 
 
-def chat(role: str, system: str, user: str, max_tokens: int = 2000, json_mode: bool = False) -> tuple[str, int]:
+last = threading.local()  # last.finish = finish_reason of this thread's latest call
+
+
+def chat(role: str, system: str, user: str, max_tokens: int = 2000, json_mode: bool = False,
+         think: bool = True) -> tuple[str, int]:
+    """Nemotron 3 models reason before answering; reasoning arrives in a separate field but counts toward
+    max_tokens. think=False turns it off (used for pure extraction, where code makes every decision)."""
     if not key():
         raise RuntimeError("NEBIUS_API_KEY not set")
     _check_budget()
@@ -87,6 +93,8 @@ def chat(role: str, system: str, user: str, max_tokens: int = 2000, json_mode: b
         raise RuntimeError(f"No model available for role {role}")
     body = {"model": model, "temperature": 0, "max_tokens": max_tokens,
             "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}]}
+    if not think:
+        body["chat_template_kwargs"] = {"enable_thinking": False}
     if json_mode:
         body["response_format"] = {"type": "json_object"}
     r = httpx.post(f"{BASE}/chat/completions", json=body, timeout=180,
@@ -98,8 +106,12 @@ def chat(role: str, system: str, user: str, max_tokens: int = 2000, json_mode: b
     d = r.json()
     used = d.get("usage", {}).get("total_tokens", 0)
     _charge(used)
-    msg = d["choices"][0]["message"]
-    return (msg.get("content") or ""), used
+    choice = d["choices"][0]
+    last.finish = choice.get("finish_reason")
+    if last.finish == "length" and think:
+        # Out of tokens mid-reasoning: content may hold leaked reasoning, not an answer.
+        print(f"warning: {role} hit max_tokens={max_tokens}")
+    return (choice["message"].get("content") or ""), used
 
 
 def parse_json(s: str):
