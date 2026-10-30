@@ -13,6 +13,8 @@ short_description: Nemotron reads the paper. Math checks every number.
 
 **Nemotron reads the paper. Math checks every number.**
 
+**Live:** https://erratum-nine.vercel.app
+
 A multiplication error in a 2024 study of black plastic kitchen utensils (Chemosphere) made it past peer review and into the headlines. The authors computed 60 kg × 7000 ng/kg/day as 42,000 ng/day when it is 420,000, and published a correction later. Statcheck has found that about half of psychology papers contain at least one inconsistent p-value, and GRIM found impossible means in 36 of the 71 papers it could check. Asking an LLM "find the errors" doesn't solve this, because models are bad at arithmetic and produce false positives.
 
 Erratum splits the job:

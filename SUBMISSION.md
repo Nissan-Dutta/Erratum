@@ -1,6 +1,6 @@
 # Erratum: Devpost text and video shot list
 
-Live app: **(add the Vercel URL after import)** · Code: https://github.com/nissan-dutta/erratum · Track: Best Apps & Agents (+ Best Use of Tavily)
+Live app: **https://erratum-nine.vercel.app** · Code: https://github.com/nissan-dutta/erratum · Track: Best Apps & Agents (+ Best Use of Tavily)
 
 ---
 
