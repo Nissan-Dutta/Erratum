@@ -32,6 +32,16 @@ class AuditIn(BaseModel):
     demo: str | None = None    # demo id
 
 
+def _client_ip(request: Request) -> str:
+    """Vercel overwrites X-Forwarded-For with the real client IP, so it's only trustworthy there.
+    Anywhere else (Docker, plain uvicorn) a client can send any value, so use the socket peer."""
+    if os.getenv("VERCEL"):
+        fwd = request.headers.get("x-forwarded-for")
+        if fwd:
+            return fwd.split(",")[0].strip()
+    return request.client.host if request.client else "?"
+
+
 def _limited(ip: str) -> bool:
     q, now = _hits[ip], time.time()
     while q and now - q[0] > 3600:
@@ -74,8 +84,7 @@ def audit(body: AuditIn, request: Request):
         else:
             text, meta = (ROOT / "demos" / d["file"]).read_text(), {"title": d["label"], "note": d.get("note")}
     else:
-        ip = request.headers.get("x-forwarded-for", request.client.host if request.client else "?").split(",")[0]
-        if _limited(ip):
+        if _limited(_client_ip(request)):
             raise HTTPException(429, f"Limit is {RATE} audits per hour. Try a demo paper.")
         if body.text and body.text.strip():
             text, meta = body.text, {"title": "Pasted text"}
