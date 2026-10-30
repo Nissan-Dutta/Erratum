@@ -39,6 +39,7 @@ Optional: `MODEL_LIGHTNING`, `MODEL_SUPER`, `MODEL_ULTRA` (otherwise auto-picked
 pip install -r requirements.txt pytest
 pytest -q tests                                  # 13 tests, all pass (offline)
 uvicorn app:app --port 7860                      # local app
+python demos/cache_demos.py                      # re-cache live demo reports (needs NEBIUS_API_KEY)
 python -m bench.bench --n 20                     # regex-path benchmark (no keys needed)
 python -m bench.bench --n 20 --llm --baseline    # with Nemotron + AI-only baseline (needs NEBIUS_API_KEY)
 ```
@@ -56,7 +57,7 @@ Done:
 
 To do, in order:
 1. [x] **Live smoke test.** DONE: lightning=nvidia/Nemotron-3_5-Lightning, super=nvidia/nemotron-3-super-120b-a12b, ultra=nvidia/Nemotron-3-Ultra-550b-a55b (auto-picked). Synthetic: all 5 planted errors found (~15-45 s, ~5k tokens). Reasoning arrives in `reasoning_content` and counts toward max_tokens; Lightning runs with thinking off (`think=False`). Fixed: % sign in pct, dedupe by numbers not quotes, GRIM scale evidence (`scale_quote`). Original note: With NEBIUS_API_KEY set, call `llm.models()` and print the picked ids. Confirm all three roles resolve to Nemotron models; if not, set MODEL_* explicitly. Run `pipeline.audit(open('demos/synthetic.txt').read())`. Expected: Nemotron also finds the GRIM-impossible mean (M = 4.73, n = 17) and 41 women = 62.5% of 64 (actually 64.1%). Fix JSON parsing if the model wraps its output.
-2. [ ] **Cache live demo reports.** Save each demo's live audit JSON to `demos/cache/<id>.json` (strip `span`) and commit them. Demos must work even if the API is down.
+2. [x] **Cache live demo reports.** DONE: `python demos/cache_demos.py [id ...]` (re-run after prompt changes); verified the app serves them with no API keys. Original note: Save each demo's live audit JSON to `demos/cache/<id>.json` (strip `span`) and commit them. Demos must work even if the API is down.
 3. [ ] **Tavily demo.** Find one open-access paper with an OSF or AsPredicted link (Europe PMC search: `"osf.io" AND OPEN_ACCESS:y`). Verify prereg_check() works and add it as a third demo (cached). Keep the wording neutral.
 4. [ ] **Baseline.** Run `python -m bench.bench --n 20 --llm --baseline`. Put the Ultra-only recall next to Erratum's recall in the README (Wilson CIs).
 5. [ ] **Deploy to Vercel.** FastAPI zero-config (`app.py` exposes `app`). Set the env vars in the Vercel project. Only /tmp is writable (already handled). If the function times out on long papers, add `vercel.json` with maxDuration 300 for the function, or cap chunks in nemotron_extract().

@@ -1,0 +1,77 @@
+{
+ "meta": {
+  "title": "The black-spatula calculation",
+  "note": "Paraphrased excerpt; the published correction fixed this number."
+ },
+ "counts": {
+  "ok": 0,
+  "flag": 1,
+  "not_checkable": 0,
+  "checked": 1,
+  "decision": 1
+ },
+ "flags": [
+  {
+   "kind": "arithmetic",
+   "quote": "60 kg × 7000 ng/kg bw/day = 42,000 ng/day",
+   "claimed": "42,000",
+   "recomputed": "420,000 ng/d",
+   "status": "flag",
+   "severity": "decision",
+   "ratio": 10.0,
+   "detail": "Recomputed 420,000 ng/d, but the paper says 42,000. Off by exactly ×10: a decimal or unit slip.",
+   "source": "regex",
+   "triage": {
+    "explanations": [
+     "Typographical error: extra zero omitted or misplaced decimal point",
+     "Unit slip: using 700 ng/kg bw/day instead of 7000 ng/kg bw/day",
+     "Rounding or scaling convention: reporting value in µg/day after conversion (420,000 ng = 420 µg) and mistakenly wrote 42,000 ng"
+    ],
+    "check": "Re‑calculate 60 kg × 7000 ng/kg bw/day, verify the units and any conversion factors applied, and confirm the intended reported value (e.g., ng/day vs µg/day)."
+   },
+   "review": {
+    "impact": "Yes, if the reference intake is actually 420,000 ng/day, the estimated utensil-derived intake of 34,700 ng/day would represent only ~8% of the reference dose rather than 83%, substantially weakening the claim that exposure 'approaches the reference dose.'",
+    "author_query": "We noted that the reference intake calculation (60 kg × 7000 ng/kg bw/day) yields 420,000 ng/day, but the manuscript reports 42,000 ng/day. Could you please confirm which value is correct and whether the 83% comparison should be updated accordingly?"
+   }
+  }
+ ],
+ "findings": [
+  {
+   "kind": "arithmetic",
+   "quote": "60 kg × 7000 ng/kg bw/day = 42,000 ng/day",
+   "claimed": "42,000",
+   "recomputed": "420,000 ng/d",
+   "status": "flag",
+   "severity": "decision",
+   "ratio": 10.0,
+   "detail": "Recomputed 420,000 ng/d, but the paper says 42,000. Off by exactly ×10: a decimal or unit slip.",
+   "source": "regex",
+   "triage": {
+    "explanations": [
+     "Typographical error: extra zero omitted or misplaced decimal point",
+     "Unit slip: using 700 ng/kg bw/day instead of 7000 ng/kg bw/day",
+     "Rounding or scaling convention: reporting value in µg/day after conversion (420,000 ng = 420 µg) and mistakenly wrote 42,000 ng"
+    ],
+    "check": "Re‑calculate 60 kg × 7000 ng/kg bw/day, verify the units and any conversion factors applied, and confirm the intended reported value (e.g., ng/day vs µg/day)."
+   },
+   "review": {
+    "impact": "Yes, if the reference intake is actually 420,000 ng/day, the estimated utensil-derived intake of 34,700 ng/day would represent only ~8% of the reference dose rather than 83%, substantially weakening the claim that exposure 'approaches the reference dose.'",
+    "author_query": "We noted that the reference intake calculation (60 kg × 7000 ng/kg bw/day) yields 420,000 ng/day, but the manuscript reports 42,000 ng/day. Could you please confirm which value is correct and whether the 83% comparison should be updated accordingly?"
+   }
+  }
+ ],
+ "prereg": {
+  "links": [],
+  "status": "none",
+  "detail": "No preregistration or trial-registry link found in the paper."
+ },
+ "models": {
+  "lightning": "nvidia/Nemotron-3_5-Lightning",
+  "super": "nvidia/nemotron-3-super-120b-a12b",
+  "ultra": "nvidia/Nemotron-3-Ultra-550b-a55b"
+ },
+ "tokens": 2543,
+ "notes": [],
+ "seconds": 11.5,
+ "chars": 766
+}

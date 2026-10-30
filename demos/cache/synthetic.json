@@ -1,0 +1,306 @@
+{
+ "meta": {
+  "title": "Planted-error paper",
+  "note": "Synthetic. Errors planted deliberately."
+ },
+ "counts": {
+  "ok": 6,
+  "flag": 5,
+  "not_checkable": 0,
+  "checked": 11,
+  "decision": 2
+ },
+ "flags": [
+  {
+   "kind": "statcheck",
+   "test": "F",
+   "quote": "F(1, 60) = 3.21, p = .03",
+   "stat": "3.21",
+   "p": ".03",
+   "computed_p": 0.07823,
+   "reported": "p = .03",
+   "status": "flag",
+   "severity": "decision",
+   "detail": "Recomputed p = 0.0782 from F(1, 60) = 3.21, but the paper reports p = .03. The corrected p is on the other side of α = .05, so the conclusion changes.",
+   "source": "regex",
+   "triage": {
+    "explanations": [
+     "Possible typographical error when copying the p‑value from statistical output.",
+     "The authors may have reported a one‑tailed p‑value (≈ .039) instead of the two‑tailed value (.078).",
+     "Mislabeling of the test statistic (e.g., using a different F value) leading to a different p."
+    ],
+    "check": "Verify the original test output (including whether the test was one‑ or two‑tailed) and confirm the reported F value and p‑value match the same analysis."
+   },
+   "review": {
+    "impact": "The recomputed p-value of 0.0782 for the condition × gender interaction (F(1,60)=3.21) exceeds α=0.05, whereas the reported p=.03 falls below it, so the statistical significance of this interaction would reverse, potentially altering any conclusions that depend on this interaction being significant.",
+    "author_query": "We noticed that the p-value for the condition × gender interaction (F(1,60)=3.21) recomputes to approximately 0.078 rather than the reported 0.03. Could you please confirm which value is correct and whether the interaction should be considered statistically significant at α=0.05?"
+   }
+  },
+  {
+   "kind": "arithmetic",
+   "quote": "64 × 3.50 dollars = 22.40 dollars",
+   "claimed": "22.40",
+   "recomputed": "224",
+   "status": "flag",
+   "severity": "decision",
+   "ratio": 10.0,
+   "detail": "Recomputed 224, but the paper says 22.4. Off by exactly ×10: a decimal or unit slip.",
+   "source": "regex",
+   "triage": {
+    "explanations": [
+     "Decimal placement error – the intended multiplier may have been $0.35 rather than $3.50.",
+     "The calculation could have been performed in cents (64 × 35 ¢ = 2240 ¢ = $22.40) but the unit was mis‑specified.",
+     "A simple transcription slip where an extra zero was added or omitted."
+    ],
+    "check": "Check the source data for the price per item and the units used in the calculation; ensure the multiplication yields the reported amount."
+   },
+   "review": {
+    "impact": "The cost calculation reports 64 × $3.50 = $22.40, but the correct product is $224.00, a tenfold discrepancy that would affect any cost-effectiveness or budgetary conclusions drawn from this analysis.",
+    "author_query": "In the cost analysis, the total booklet cost is stated as 64 × $3.50 = $22.40, but this multiplication yields $224.00. Could you please verify the intended total cost and whether the decimal placement is correct?"
+   }
+  },
+  {
+   "kind": "percent",
+   "quote": "12 of 64 (21.9%)",
+   "x": 12,
+   "n": 64,
+   "pct": "21.9",
+   "status": "flag",
+   "severity": "minor",
+   "detail": "12/64 = 18.75%, but the paper reports 21.9%.",
+   "source": "regex",
+   "triage": {
+    "explanations": [
+     "The percentage may have been calculated using a different denominator (e.g., only participants who answered a specific question).",
+     "Rounding or transcription error when converting the proportion to a percentage.",
+     "The numerator or denominator could have been mis‑copied from the raw counts."
+    ],
+    "check": "Identify the exact subgroup or variable for which the 21.9% was intended and confirm the denominator used matches that subgroup."
+   }
+  },
+  {
+   "kind": "grim",
+   "quote": "Wellbeing after the intervention was higher in the journaling condition (M = 5.19, SD = 1.02, n = 32) than in the control condition (M = 4.73, SD = 1.11, n = 17)",
+   "mean": "4.73",
+   "n": 17,
+   "status": "flag",
+   "severity": "minor",
+   "detail": "Impossible mean. With n = 17, no integer total gives 4.73; nearest achievable: 4.71 or 4.76.",
+   "source": "nemotron",
+   "triage": {
+    "explanations": [
+     "The reported means might be model‑estimated (e.g., least‑squares means) rather than raw sample means.",
+     "The scale may allow non‑integer values (e.g., a continuous transformation or averaging of multi‑item scales).",
+     "Data could have been weighted or adjusted (e.g., for covariates) before computing the means."
+    ],
+    "check": "Determine whether the means are raw descriptive statistics or adjusted estimates from a model, and verify the measurement scale allows the reported values."
+   }
+  },
+  {
+   "kind": "percent",
+   "quote": "Of the 64 participants, 41 were women (62.5%), and 12 of 64 (21.9%) reported prior journaling experience.",
+   "x": 41,
+   "n": 64,
+   "pct": "62.5",
+   "status": "flag",
+   "severity": "minor",
+   "detail": "41/64 = 64.06%, but the paper reports 62.5%.",
+   "source": "nemotron",
+   "triage": {
+    "explanations": [
+     "A data‑entry or counting error where one woman was mis‑coded or omitted.",
+     "One participant may have been classified as non‑binary/other and excluded from the women count while still being in the total N.",
+     "Simple transcription mistake when reporting the percentage."
+    ],
+    "check": "Re‑count the raw gender categories in the dataset and ensure the sum matches the total sample size of 64."
+   }
+  }
+ ],
+ "findings": [
+  {
+   "kind": "statcheck",
+   "test": "t",
+   "quote": "t(62) = 1.72, p = .045",
+   "stat": "1.72",
+   "p": ".045",
+   "computed_p": 0.09042,
+   "reported": "p = .045",
+   "status": "ok",
+   "one_tailed": true,
+   "detail": "Two-tailed p = 0.0904. Consistent if one-tailed (p = 0.0452); the paper doesn't say.",
+   "source": "regex"
+  },
+  {
+   "kind": "statcheck",
+   "test": "t",
+   "quote": "t(62) = 0.41, p = .68",
+   "stat": "0.41",
+   "p": ".68",
+   "computed_p": 0.68322,
+   "reported": "p = .68",
+   "status": "ok",
+   "detail": "Recomputed p = 0.6832; consistent with the reported value.",
+   "source": "regex"
+  },
+  {
+   "kind": "statcheck",
+   "test": "F",
+   "quote": "F(1, 60) = 3.21, p = .03",
+   "stat": "3.21",
+   "p": ".03",
+   "computed_p": 0.07823,
+   "reported": "p = .03",
+   "status": "flag",
+   "severity": "decision",
+   "detail": "Recomputed p = 0.0782 from F(1, 60) = 3.21, but the paper reports p = .03. The corrected p is on the other side of α = .05, so the conclusion changes.",
+   "source": "regex",
+   "triage": {
+    "explanations": [
+     "Possible typographical error when copying the p‑value from statistical output.",
+     "The authors may have reported a one‑tailed p‑value (≈ .039) instead of the two‑tailed value (.078).",
+     "Mislabeling of the test statistic (e.g., using a different F value) leading to a different p."
+    ],
+    "check": "Verify the original test output (including whether the test was one‑ or two‑tailed) and confirm the reported F value and p‑value match the same analysis."
+   },
+   "review": {
+    "impact": "The recomputed p-value of 0.0782 for the condition × gender interaction (F(1,60)=3.21) exceeds α=0.05, whereas the reported p=.03 falls below it, so the statistical significance of this interaction would reverse, potentially altering any conclusions that depend on this interaction being significant.",
+    "author_query": "We noticed that the p-value for the condition × gender interaction (F(1,60)=3.21) recomputes to approximately 0.078 rather than the reported 0.03. Could you please confirm which value is correct and whether the interaction should be considered statistically significant at α=0.05?"
+   }
+  },
+  {
+   "kind": "statcheck",
+   "test": "r",
+   "quote": "r(30) = .41, p = .02",
+   "stat": ".41",
+   "p": ".02",
+   "computed_p": 0.01978,
+   "reported": "p = .02",
+   "status": "ok",
+   "detail": "Recomputed p = 0.0198; consistent with the reported value.",
+   "source": "regex"
+  },
+  {
+   "kind": "statcheck",
+   "test": "chi2",
+   "quote": "χ2(1, N = 64) = 0.52, p = .47",
+   "stat": "0.52",
+   "p": ".47",
+   "computed_p": 0.47084,
+   "reported": "p = .47",
+   "status": "ok",
+   "detail": "Recomputed p = 0.4708; consistent with the reported value.",
+   "source": "regex"
+  },
+  {
+   "kind": "percent",
+   "quote": "12 of 64 (21.9%)",
+   "x": 12,
+   "n": 64,
+   "pct": "21.9",
+   "status": "flag",
+   "severity": "minor",
+   "detail": "12/64 = 18.75%, but the paper reports 21.9%.",
+   "source": "regex",
+   "triage": {
+    "explanations": [
+     "The percentage may have been calculated using a different denominator (e.g., only participants who answered a specific question).",
+     "Rounding or transcription error when converting the proportion to a percentage.",
+     "The numerator or denominator could have been mis‑copied from the raw counts."
+    ],
+    "check": "Identify the exact subgroup or variable for which the 21.9% was intended and confirm the denominator used matches that subgroup."
+   }
+  },
+  {
+   "kind": "arithmetic",
+   "quote": "64 × 3.50 dollars = 22.40 dollars",
+   "claimed": "22.40",
+   "recomputed": "224",
+   "status": "flag",
+   "severity": "decision",
+   "ratio": 10.0,
+   "detail": "Recomputed 224, but the paper says 22.4. Off by exactly ×10: a decimal or unit slip.",
+   "source": "regex",
+   "triage": {
+    "explanations": [
+     "Decimal placement error – the intended multiplier may have been $0.35 rather than $3.50.",
+     "The calculation could have been performed in cents (64 × 35 ¢ = 2240 ¢ = $22.40) but the unit was mis‑specified.",
+     "A simple transcription slip where an extra zero was added or omitted."
+    ],
+    "check": "Check the source data for the price per item and the units used in the calculation; ensure the multiplication yields the reported amount."
+   },
+   "review": {
+    "impact": "The cost calculation reports 64 × $3.50 = $22.40, but the correct product is $224.00, a tenfold discrepancy that would affect any cost-effectiveness or budgetary conclusions drawn from this analysis.",
+    "author_query": "In the cost analysis, the total booklet cost is stated as 64 × $3.50 = $22.40, but this multiplication yields $224.00. Could you please verify the intended total cost and whether the decimal placement is correct?"
+   }
+  },
+  {
+   "kind": "arithmetic",
+   "quote": "12 min × 21 = 252 min",
+   "claimed": "252",
+   "recomputed": "252 min",
+   "status": "ok",
+   "detail": "Recomputed 252 min; matches.",
+   "source": "regex"
+  },
+  {
+   "kind": "grim",
+   "quote": "Wellbeing after the intervention was higher in the journaling condition (M = 5.19, SD = 1.02, n = 32) than in the control condition (M = 4.73, SD = 1.11, n = 17)",
+   "mean": "5.19",
+   "n": 32,
+   "status": "ok",
+   "detail": "Achievable: 166/32 = 5.1875.",
+   "source": "nemotron"
+  },
+  {
+   "kind": "grim",
+   "quote": "Wellbeing after the intervention was higher in the journaling condition (M = 5.19, SD = 1.02, n = 32) than in the control condition (M = 4.73, SD = 1.11, n = 17)",
+   "mean": "4.73",
+   "n": 17,
+   "status": "flag",
+   "severity": "minor",
+   "detail": "Impossible mean. With n = 17, no integer total gives 4.73; nearest achievable: 4.71 or 4.76.",
+   "source": "nemotron",
+   "triage": {
+    "explanations": [
+     "The reported means might be model‑estimated (e.g., least‑squares means) rather than raw sample means.",
+     "The scale may allow non‑integer values (e.g., a continuous transformation or averaging of multi‑item scales).",
+     "Data could have been weighted or adjusted (e.g., for covariates) before computing the means."
+    ],
+    "check": "Determine whether the means are raw descriptive statistics or adjusted estimates from a model, and verify the measurement scale allows the reported values."
+   }
+  },
+  {
+   "kind": "percent",
+   "quote": "Of the 64 participants, 41 were women (62.5%), and 12 of 64 (21.9%) reported prior journaling experience.",
+   "x": 41,
+   "n": 64,
+   "pct": "62.5",
+   "status": "flag",
+   "severity": "minor",
+   "detail": "41/64 = 64.06%, but the paper reports 62.5%.",
+   "source": "nemotron",
+   "triage": {
+    "explanations": [
+     "A data‑entry or counting error where one woman was mis‑coded or omitted.",
+     "One participant may have been classified as non‑binary/other and excluded from the women count while still being in the total N.",
+     "Simple transcription mistake when reporting the percentage."
+    ],
+    "check": "Re‑count the raw gender categories in the dataset and ensure the sum matches the total sample size of 64."
+   }
+  }
+ ],
+ "prereg": {
+  "links": [],
+  "status": "none",
+  "detail": "No preregistration or trial-registry link found in the paper."
+ },
+ "models": {
+  "lightning": "nvidia/Nemotron-3_5-Lightning",
+  "super": "nvidia/nemotron-3-super-120b-a12b",
+  "ultra": "nvidia/Nemotron-3-Ultra-550b-a55b"
+ },
+ "tokens": 5485,
+ "notes": [],
+ "seconds": 21.9,
+ "chars": 1233
+}
