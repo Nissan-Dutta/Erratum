@@ -35,6 +35,15 @@ def test_home_page_ignores_range_header(client):
     assert "accept-ranges" not in r.headers
 
 
+def test_home_page_is_self_contained_and_labelled(client):
+    html = client.get("/").text
+    assert '<html lang="en">' in html
+    assert "Nemotron reads the paper. Math checks every number." in html
+    assert 'for="ident"' in html and 'id="ident"' in html
+    assert "fonts.googleapis" not in html
+    assert 'src="http' not in html and 'rel="stylesheet"' not in html
+
+
 def test_security_headers_on_every_response(client):
     for r in (client.get("/"), client.get("/api/demos"), client.get("/api/health")):
         assert r.headers["x-content-type-options"] == "nosniff"
