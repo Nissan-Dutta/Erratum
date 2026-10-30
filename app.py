@@ -8,8 +8,8 @@ import time
 from collections import defaultdict, deque
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel
 
 from erratum import llm, pipeline
@@ -22,8 +22,20 @@ DEMOS = json.loads((ROOT / "demos" / "demos.json").read_text())
 RATE = int(os.getenv("AUDITS_PER_HOUR", "8"))
 MAX_CHARS = 200_000
 
+INDEX_HTML = (ROOT / "static" / "index.html").read_bytes()
+
 app = FastAPI(title="Erratum")
 _hits: dict[str, deque] = defaultdict(deque)
+
+
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    response: Response = await call_next(request)
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    response.headers.setdefault("Content-Security-Policy", "frame-ancestors 'none'")  # only framing; scripts unaffected
+    return response
 
 
 class AuditIn(BaseModel):
@@ -54,7 +66,8 @@ def _limited(ip: str) -> bool:
 
 @app.get("/")
 def index():
-    return FileResponse(ROOT / "static" / "index.html")
+    # A plain response, not FileResponse: Starlette's Range parser is quadratic in the number of ranges.
+    return HTMLResponse(INDEX_HTML)
 
 
 @app.get("/api/demos")
