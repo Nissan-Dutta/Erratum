@@ -8,4 +8,4 @@ RUN useradd --create-home --uid 10001 app \
 USER app
 ENV PORT=7860
 EXPOSE 7860
-CMD ["sh", "-c", "uvicorn app:app --host 0.0.0.0 --port ${PORT}"]
+CMD ["sh", "-c", "uvicorn app:app --host 0.0.0.0 --port ${PORT} --no-proxy-headers"]
