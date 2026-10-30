@@ -13,6 +13,14 @@ from scipy import stats as st
 
 ALPHA = 0.05
 
+# No real paper has a number this long. Pasted digit runs of this size make ARITH_RE take minutes
+# (its digit-and-comma class backtracks cubically) and overflow int() (Python's 4,300-digit limit).
+LONG_NUMBER_RE = re.compile(r"\d[\d,.]{28,}\d")
+
+
+def neutralize_long_numbers(text: str) -> str:
+    return LONG_NUMBER_RE.sub("[long number]", text)
+
 
 def _decimals(s: str) -> int:
     s = str(s).strip()
