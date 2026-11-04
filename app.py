@@ -10,7 +10,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.responses import HTMLResponse, JSONResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from erratum import llm, pipeline
 
@@ -39,9 +39,10 @@ async def security_headers(request: Request, call_next):
 
 
 class AuditIn(BaseModel):
-    input: str | None = None   # PMCID or DOI
-    text: str | None = None    # pasted text
-    demo: str | None = None    # demo id
+    # Security: enforce maximum lengths to mitigate denial-of-service / memory exhaustion
+    input: str | None = Field(default=None, max_length=500)        # PMCID or DOI
+    text: str | None = Field(default=None, max_length=MAX_CHARS)  # pasted text
+    demo: str | None = Field(default=None, max_length=64)         # demo id
 
 
 def _client_ip(request: Request) -> str:
